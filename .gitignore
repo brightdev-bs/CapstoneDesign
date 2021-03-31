@@ -1,3 +1,11 @@
+#Custom
+*.docx
+*png
+*jpg
+*zip
+*tar
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
