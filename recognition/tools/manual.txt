@@ -1,0 +1,5 @@
+create lst
+python face2rec2.py ./arcf --list ./arcf --recursive
+
+create rec
+python face2rec2.py {$lst root} {$image root}

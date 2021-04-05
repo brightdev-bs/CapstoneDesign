@@ -4,7 +4,10 @@
 *jpg
 *zip
 *tar
-
+*bin
+*rec
+*idx
+*.params
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
