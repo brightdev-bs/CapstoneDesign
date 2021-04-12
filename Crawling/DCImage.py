@@ -97,7 +97,7 @@ class _DCImage(threading.Thread):
 
         current_time = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "__" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second)
         savedir ="./imgs/"
-        savename = savedir+current_time + count+"."+file_ext
+        savename = savedir+current_time + str(count)+"."+file_ext
         count+=1
         os.makedirs(savedir, exist_ok = True)
 
