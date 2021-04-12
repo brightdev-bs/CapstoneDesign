@@ -8,6 +8,7 @@
 *rec
 *idx
 *.params
+crawler-sample/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
