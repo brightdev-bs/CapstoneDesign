@@ -73,6 +73,8 @@ class _DCImage(threading.Thread):
 
   def get_Image(self, view):
     now = datetime.datetime.now()
+    count = 0
+
 
     image_response =  req.get(view, headers={'User-Agent' : self.user_Agent})
     
@@ -95,7 +97,8 @@ class _DCImage(threading.Thread):
 
         current_time = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "__" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second)
         savedir ="./imgs/"
-        savename = savedir+current_time + "."+file_ext
+        savename = savedir+current_time + count+"."+file_ext
+        count+=1
         os.makedirs(savedir, exist_ok = True)
 
         opener = request.build_opener()
