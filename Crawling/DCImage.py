@@ -10,11 +10,18 @@ import face_recognition
 import glob
 import threading
 import sys
-import videokf as vf
+#import videokf as vf
 
 
-
-
+class lists:
+    
+    def __init__(self, savePath:str, saveUrl:str):
+        self.savePath = savePath
+        self.saveUrl = saveUrl
+        
+    def getLists(self):
+        return self.savePath, self.saveUrl
+    
 class _DCImage(threading.Thread):
   def __init__(self, loop_time = 1.0/60):
     print("Ilbe Crawler Init")
@@ -81,15 +88,11 @@ class _DCImage(threading.Thread):
     for li in image_downloader:
         img_tag = li.find('a', href=True)
         img_url = img_tag['href']
-            
+        
         print("url : "+img_url)
         
         file_ext = img_url.split('.')[-1]
 
-        #jpg만 저장
-        if file_ext != "jpg":
-          continue
-        
         current_time = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "__" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second)
         savedir ="./imgs/"
         savename = savedir+current_time + "."+file_ext
@@ -99,15 +102,21 @@ class _DCImage(threading.Thread):
         opener.addheaders = [('User-agent', self.user_Agent), ('Referer', image_response.url)]
         
         request.install_opener(opener)
-        
-        images.append(request.urlretrieve(img_url, savename))
+        request.urlretrieve(img_url, savename)
+        images.append(lists(savename, img_url))
     
-    print(images)
     return images
     
     
-  def get_faceKeyFrame(self):
-    base_image_paths = glob.glob('./imgs/*.jpg')
+  def get_faceKeyFrame(self, saveInformation):
+    
+    base_image_paths = []
+    
+    for i in saveInformation:
+        path = i.savePath
+        base_image_paths.append(path)
+    
+    print(base_image_paths)
     print("이미지 수집 완료. 이미지 분류를 시작합니다.")
     time.sleep(2)
     for base_image_path in base_image_paths:
@@ -156,8 +165,8 @@ class _DCImage(threading.Thread):
           # vf.extract_keyframes(url, method='iframes', output_dir_keyframes='./img')
           view = url
           time.sleep(2)
-          self.get_Image(view)
-          self.get_faceKeyFrame()
+          saveInformation = self.get_Image(view)
+          self.get_faceKeyFrame(saveInformation)
           # self.get_faceDetection(view)
           count += 1
       break
