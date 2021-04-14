@@ -172,9 +172,7 @@ class _DCImage(threading.Thread):
           self.get_faceKeyFrame(saveInformation)
           # self.get_faceDetection(view)
           count += 1
-      break
 
-          
       print(key_name + " 카테고리의 모든 수집을 완료했습니다. 다음 카테고리로 넘어갑니다.")
 
 _DCImage().run()
