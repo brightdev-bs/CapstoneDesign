@@ -10,10 +10,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class DetectionController {
 
+    @GetMapping("/")
+    public String index(){
+        return "index";
+    }
 
     @GetMapping("/api/face/result")
     public String result(DetectionResultResponseDto responseDto, Model model){
         model.addAttribute("result", responseDto);
         return "detection-result";
     }
+
 }
