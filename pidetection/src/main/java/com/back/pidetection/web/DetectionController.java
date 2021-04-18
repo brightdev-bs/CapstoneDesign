@@ -7,6 +7,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
+
 @Controller
 public class DetectionController {
 
@@ -18,6 +20,7 @@ public class DetectionController {
     @GetMapping("/api/face/result")
     public String result(DetectionResultResponseDto responseDto, Model model){
         model.addAttribute("result", responseDto);
+
         return "detection-result";
     }
 
