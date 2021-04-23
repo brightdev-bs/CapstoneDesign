@@ -20,12 +20,12 @@ public class Crawling {
     private String url;
 
     @Lob
-    private byte[] image;
+    private String storageUrl;
 
     @Builder
-    public Crawling(String url, byte[] image){
+    public Crawling(String url, String storageUrl){
         this.url = url;
-        this.image = image;
+        this.storageUrl = storageUrl;
 
     }
 }

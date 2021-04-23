@@ -38,11 +38,11 @@ public class CrawlingApiControllerTest {
     @Test
     public void save(){
         String url = "http://www.testurl";
-        byte[] image = {1,1,1,1};
+        String storageUrl = "C:...";
 
         CrawlingSaveRequestDto requestDto = CrawlingSaveRequestDto.builder()
                 .url(url)
-                .image(image)
+                .storageUrl(storageUrl)
                 .build();
 
         String postUrl = "http://localhost:"+port+"api/face";
@@ -55,7 +55,7 @@ public class CrawlingApiControllerTest {
 
         List<Crawling> crawlingList = crawlingRepository.findAll();
         assertThat(crawlingList.get(0).getUrl()).isEqualTo(url);
-        assertThat(crawlingList.get(0).getImage()).isEqualTo(image);
+        assertThat(crawlingList.get(0).getStorageUrl()).isEqualTo(storageUrl);
 
     }
 
