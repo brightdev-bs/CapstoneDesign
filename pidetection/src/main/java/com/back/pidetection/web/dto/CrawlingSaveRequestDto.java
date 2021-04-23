@@ -10,19 +10,19 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class CrawlingSaveRequestDto {
+    private String storageUrl;
     private String url;
-    private byte[] image;
 
     @Builder
-    public CrawlingSaveRequestDto(String url, byte[] image){
+    public CrawlingSaveRequestDto(String url, String storageUrl){
         this.url = url;
-        this.image =image;
+        this.storageUrl =storageUrl;
     }
 
     public Crawling toEntity(){
         return Crawling.builder()
                 .url(url)
-                .image(image)
+                .storageUrl(storageUrl)
                 .build();
     }
 
