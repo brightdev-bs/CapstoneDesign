@@ -29,6 +29,8 @@ config.count_flops = True
 config.memonger = False  #not work now
 config.is_shuffled_rec = False
 
+config.fp16 = False
+
 # network settings
 network = edict()
 
@@ -217,5 +219,6 @@ def generate_config(_network, _dataset, _loss):
     config.network = _network
     config.dataset = _dataset
     config.num_workers = 1
+    config.fp16 = False
     if 'DMLC_NUM_WORKER' in os.environ:
         config.num_workers = int(os.environ['DMLC_NUM_WORKER'])

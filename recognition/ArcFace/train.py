@@ -235,7 +235,7 @@ def get_symbol(args):
 
 def train_net(args):
     ctx = []
-    cvd = os.environ['CUDA_VISIBLE_DEVICES']='0'
+    cvd = os.environ['CUDA_VISIBLE_DEVICES'].strip()
     if len(cvd) > 0:
         for i in range(len(cvd.split(','))):
             ctx.append(mx.gpu(i))

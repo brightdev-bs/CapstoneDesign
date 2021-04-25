@@ -589,9 +589,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='do verification')
     # general
-    parser.add_argument('--data-dir', default='', help='')
+    parser.add_argument('--data-dir', default='data', help='')
     parser.add_argument('--model',
-                        default='../model/softmax,50',
+                        default='../model/model-r100-ii/model,0',
                         help='path to load model.')
     parser.add_argument('--target',
                         default='lfw,cfp_ff,cfp_fp,agedb_30',
