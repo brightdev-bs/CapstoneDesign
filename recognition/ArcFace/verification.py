@@ -56,7 +56,6 @@ class LFold:
         else:
             return [(indices, indices)]
 
-
 def calculate_roc(thresholds,
                   embeddings1,
                   embeddings2,
@@ -119,9 +118,9 @@ def calculate_roc(thresholds,
     fpr = np.mean(fprs, 0)
     return tpr, fpr, accuracy
 
-
 def calculate_accuracy(threshold, dist, actual_issame):
     predict_issame = np.less(dist, threshold)
+
     tp = np.sum(np.logical_and(predict_issame, actual_issame))
     fp = np.sum(np.logical_and(predict_issame, np.logical_not(actual_issame)))
     tn = np.sum(
@@ -150,12 +149,11 @@ def calculate_val(thresholds,
     val = np.zeros(nrof_folds)
     far = np.zeros(nrof_folds)
 
-    diff = np.subtract(embeddings1, embeddings2)
+    diff = np.subtract(embeddings1, embeddings2) 
     dist = np.sum(np.square(diff), 1)
     indices = np.arange(nrof_pairs)
 
     for fold_idx, (train_set, test_set) in enumerate(k_fold.split(indices)):
-
         # Find the threshold that gives FAR = far_target
         far_train = np.zeros(nrof_thresholds)
         for threshold_idx, threshold in enumerate(thresholds):
@@ -187,6 +185,9 @@ def calculate_val_far(threshold, dist, actual_issame):
     #print(n_same, n_diff)
     val = float(true_accept) / float(n_same)
     far = float(false_accept) / float(n_diff)
+    print(val)
+    print("------------------------------")
+    print(far)
     return val, far
 
 
@@ -208,6 +209,7 @@ def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
                                       np.asarray(actual_issame),
                                       1e-3,
                                       nrof_folds=nrof_folds)
+    
     return tpr, fpr, accuracy, val, val_std, far
 
 
@@ -259,6 +261,7 @@ def test(data_set,
         _label = nd.ones(label_shape)
     for i in range(len(data_list)):
         data = data_list[i]
+        print(data)
         embeddings = None
         ba = 0
         while ba < data.shape[0]:
@@ -290,7 +293,7 @@ def test(data_set,
             time_now = datetime.datetime.now()
             diff = time_now - time0
             time_consumed += diff.total_seconds()
-            #print(_embeddings.shape)
+            #print(_embeddings.shape) 
             if embeddings is None:
                 embeddings = np.zeros((data.shape[0], _embeddings.shape[1]))
             embeddings[ba:bb, :] = _embeddings[(batch_size - count):, :]
@@ -597,7 +600,7 @@ if __name__ == '__main__':
                         default='lfw,cfp_ff,cfp_fp,agedb_30',
                         help='test targets.')
     parser.add_argument('--gpu', default=0, type=int, help='gpu id')
-    parser.add_argument('--batch-size', default=32, type=int, help='')
+    parser.add_argument('--batch-size', default=1, type=int, help='')
     parser.add_argument('--max', default='', type=str, help='')
     parser.add_argument('--mode', default=0, type=int, help='')
     parser.add_argument('--nfolds', default=10, type=int, help='')
@@ -659,17 +662,19 @@ if __name__ == '__main__':
             ver_list.append(data_set)
             ver_name_list.append(name)
 
+    print(ver_list)
+
     if args.mode == 0:
         for i in range(len(ver_list)):
             results = []
             for model in nets:
                 acc1, std1, acc2, std2, xnorm, embeddings_list = test(
                     ver_list[i], model, args.batch_size, args.nfolds)
-                print('[%s]XNorm: %f' % (ver_name_list[i], xnorm))
-                print('[%s]Accuracy: %1.5f+-%1.5f' %
-                      (ver_name_list[i], acc1, std1))
-                print('[%s]Accuracy-Flip: %1.5f+-%1.5f' %
-                      (ver_name_list[i], acc2, std2))
+                #print('[%s]XNorm: %f' % (ver_name_list[i], xnorm))
+                #print('[%s]Accuracy: %1.5f+-%1.5f' %
+                #     (ver_name_list[i], acc1, std1))
+                #print('[%s]Accuracy-Flip: %1.5f+-%1.5f' %
+                #      (ver_name_list[i], acc2, std2))
                 results.append(acc2)
             print('Max of [%s] is %1.5f' % (ver_name_list[i], np.max(results)))
     elif args.mode == 1:
