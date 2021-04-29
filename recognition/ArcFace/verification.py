@@ -161,11 +161,11 @@ def calculate_val(thresholds,
         for threshold_idx, threshold in enumerate(thresholds):
             _, far_train[threshold_idx] = calculate_val_far(
                 threshold, dist[train_set], actual_issame[train_set])
-        if np.max(far_train) >= far_target:
-            f = interpolate.interp1d(far_train, thresholds, kind='slinear')
-            threshold = f(far_target)
-        else:
-            threshold = 0.0
+            if np.max(far_train) >= far_target:
+                f = interpolate.interp1d(far_train, thresholds, kind='slinear')
+                threshold = f(far_target)
+            else:
+                threshold = 0.0
 
         val[fold_idx], far[fold_idx] = calculate_val_far(
             threshold, dist[test_set], actual_issame[test_set])
