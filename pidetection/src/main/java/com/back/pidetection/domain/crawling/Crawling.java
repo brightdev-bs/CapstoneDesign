@@ -1,6 +1,5 @@
 package com.back.pidetection.domain.crawling;
 
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
