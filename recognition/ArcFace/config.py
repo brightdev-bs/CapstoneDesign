@@ -114,9 +114,9 @@ network.vargfacenet.net_output = 'J'
 dataset = edict()
 
 dataset.emore = edict()
-dataset.emore.dataset = 'emore'
-dataset.emore.dataset_path = '../datasets/faces_emore'
-dataset.emore.num_classes = 85742
+dataset.emore.dataset = 'data'
+dataset.emore.dataset_path = 'data/'
+dataset.emore.num_classes = 2
 dataset.emore.image_shape = (112, 112, 3)
 dataset.emore.val_targets = ['lfw', 'cfp_fp', 'agedb_30']
 
@@ -185,7 +185,7 @@ default.network = 'r100'
 default.pretrained = ''
 default.pretrained_epoch = 1
 # default dataset
-default.dataset = 'emore'
+default.dataset = 'data'
 default.loss = 'arcface'
 default.frequent = 20
 default.verbose = 2000
@@ -195,10 +195,11 @@ default.end_epoch = 10000
 default.lr = 0.1
 default.wd = 0.0005
 default.mom = 0.9
-default.per_batch_size = 32
+default.per_batch_size = 1
 default.ckpt = 3
-default.lr_steps = '100000,160000,220000'
-default.models_root = './models'
+default.lr_steps = '1'
+#default.lr_steps = '100000,160000,220000'
+default.models_root = 'models/'
 
 
 def generate_config(_network, _dataset, _loss):

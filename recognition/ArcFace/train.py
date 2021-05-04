@@ -44,6 +44,7 @@ def parse_args():
                         help='network config')
     parser.add_argument('--loss', default=default.loss, help='loss config')
     args, rest = parser.parse_known_args()
+    print(args.dataset)
     generate_config(args.network, args.dataset, args.loss)
     parser.add_argument('--models-root',
                         default=default.models_root,
@@ -235,7 +236,7 @@ def get_symbol(args):
 
 def train_net(args):
     ctx = []
-    cvd = os.environ['CUDA_VISIBLE_DEVICES'].strip()
+    cvd = os.environ['CUDA_VISIBLE_DEVICES'] ='0'
     if len(cvd) > 0:
         for i in range(len(cvd.split(','))):
             ctx.append(mx.gpu(i))
