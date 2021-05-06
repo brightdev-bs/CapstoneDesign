@@ -36,26 +36,26 @@ var main = {
 
     },
 
-    upload : function (){
-        var formData = new FormData();
-        var InputFileElement = document.getElementById("input-file");
-        formData.append("input-file",InputFileElement.files[0]);
-        console.log(InputFileElement.files[0]);
+    upload : function () {
+        var formData = new FormData($('#input-image')[0]);
         console.log(formData);
 
         $.ajax({
-            type:'POST',
-            url:'/api/detection/input',
-            dataType: false,
+            type: 'POST',
+            url: '/api/detection/input',
+            data: formData,
+            enctype: 'multipart/form-data',
             processData: false,
-            data:formData
-
-        }).done(function(){
-            alert("파일 업로드 완료.");
-            window.location.href="wait-page";
-        }).fail(function(error){
-            alert("파일 업로드 실패: "+JSON.stringify(error));
-        })
+            contentType: false,
+            dataType: 'text',
+            success: function (result) {
+                alert("파일 업로드 완료.");
+                window.location.href = "/wait-page";
+            },
+            error: function (e) {
+                alert("파일 업로드 실패: " + JSON.stringify(e));
+            }
+        });
     }
 
 
