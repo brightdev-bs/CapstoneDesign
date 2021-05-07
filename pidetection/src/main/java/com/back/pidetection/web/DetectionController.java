@@ -5,7 +5,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -13,8 +12,9 @@ import java.util.ArrayList;
 
 @Controller
 public class DetectionController {
+//    ArrayList<String> urls= new ArrayList<>();
+//    ArrayList<byte[]> images= new ArrayList<>();
     ArrayList<DetectionResultDto> resultDtos = new ArrayList<>();
-
     @GetMapping("/")
     public String index(){
         return "index";
@@ -25,16 +25,24 @@ public class DetectionController {
         return "wait-page";
     }
 
-    @PostMapping("/api/face/result")
+    @PostMapping("/api/detection/result")
     public String saveResult(@RequestBody DetectionResultDto resultDto, Model model) {
         if (resultDto.getImage().length != 0) {
+//            urls.add(resultDto.getUrl());
+//            images.add(resultDto.getImage());
             resultDtos.add(resultDto);
             return "wait-page";
         } else {
-            model.addAttribute("result", resultDtos);
             return "redirect:detection-result";
         }
 
+    }
+    @GetMapping("/detection-result")
+    public String resultTest2(Model model){
+//        model.addAttribute("result-url", urls);
+//        model.addAttribute("result-image", images);
+        model.addAttribute("result",resultDtos);
+        return "detection-result";
     }
 
 
