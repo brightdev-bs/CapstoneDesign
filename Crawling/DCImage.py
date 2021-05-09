@@ -1,8 +1,12 @@
 # _*_ coding:utf-8 _*_
 
+import utills
 import requests as req
 from urllib import request
 from bs4 import BeautifulSoup as bs
+
+from utills import lists
+
 import time
 import datetime
 import os
@@ -10,19 +14,11 @@ import face_recognition
 import glob
 import threading
 import sys
+
+
 #import videokf as vf
 
-
-class lists:
-    
-    def __init__(self, savePath:str, saveUrl:str):
-        self.savePath = savePath
-        self.saveUrl = saveUrl
-        
-    def getLists(self):
-        return self.savePath, self.saveUrl
-    
-class _DCImage(threading.Thread):
+class _DCImage(utills.utillClass):
   def __init__(self, loop_time = 1.0/60):
     print("Ilbe Crawler Init")
     self.timeout = loop_time
@@ -109,49 +105,6 @@ class _DCImage(threading.Thread):
         images.append(lists(savename, img_url))
     
     return images
-    
-    
-  def get_faceKeyFrame(self, saveInformation):
-    
-    base_image_paths = []
-    
-    for i in saveInformation:
-        path = i.savePath
-        base_image_paths.append(path)
-    
-    print(base_image_paths)
-    print("이미지 수집 완료. 이미지 분류를 시작합니다.")
-    time.sleep(2)
-    for base_image_path in base_image_paths:
-      temp_face_location = face_recognition.load_image_file(base_image_path)
-      temp_encoding = face_recognition.face_encodings(temp_face_location)
-
-      if len(temp_encoding) == 0:
-        print(base_image_path + "를 삭제합니다.")
-        os.remove(base_image_path)
-
-
-  def get_faceDetection(self, pageUrl):
-    base_image_paths = glob.glob('./imgs/*.jpg')
-    if len(base_image_paths) != 0:
-      print("이미지 분류 완료. 이미지 등록을 시작합니다.")
-      time.sleep(2)
-      for base_image_path in base_image_paths:
-        files = {'face': open(base_image_path, 'rb')}
-        
-        try:
-          result = req.post('http://api.kuuwang.com/face/encode', files=files, data={'url': pageUrl}).text
-          print(result)
-        except Exception as E:
-          print("Encode 전송 에러")
-          print(E)
-          pass
-
-      print("이미지 등록 완료.")
-    else:
-      print("Get Face Dection PASS")
-      pass
-
 
   def run(self):
     print("국내 커뮤니티 사이트 URL : "+self.BASE_PARSER_URL)
@@ -175,4 +128,5 @@ class _DCImage(threading.Thread):
 
       print(key_name + " 카테고리의 모든 수집을 완료했습니다. 다음 카테고리로 넘어갑니다.")
 
-_DCImage().run()
+if __name__ == '__main__':
+    _DCImage().run()
