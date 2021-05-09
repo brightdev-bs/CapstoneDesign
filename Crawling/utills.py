@@ -10,6 +10,9 @@ import face_recognition
 import glob
 import threading
 import sys
+import shutil
+
+from argparser import args
 
 '''
 class saveFileErrorHandling(Exception):
@@ -22,34 +25,27 @@ class lists:
     def __init__(self, savePath:str, saveUrl:str):
         self.savePath = savePath
         self.saveUrl = saveUrl
-        
+
     def getLists(self):
         return self.savePath, self.saveUrl
 
 class utillClass(threading.Thread):
   
   def __init__(self, loop_time = 1.0/60):
-    super(utillClass, self).__init__()
     self.timeout = loop_time
-    self.BASE_PARSER_URL
     self.user_Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
-   
-  def get_Categories(self):
-    pass
-
-  def set_Category(self, keyUrl):
-    pass
-
-  def get_UrlList(self, soup):
-    pass
-  
-  def get_Image(self, view):
-    pass
-
+    super(utillClass, self).__init__()
+    
   def saveFileErrorHandling(self, string:str, i_lists:lists):
-    print(i_lists.saveUrl+string)
+    print(string+ " - "+i_lists.saveUrl)
+    print("PATH= "+i_lists.savePath)
+
+    #mvdir = args.garbageDir
+    #shutil.move(i_lists.savePath, mvdir+foldername+filename)
+    #디버깅용, 삭제하지않고 일단 사진 폴더 이동
     os.remove(i_lists.savePath)
-    F = open("LogOfSaveFile.txt","a")
+
+    F = open("./imgs/LogOfSaveFile.txt","a")
     print(string+"-"+i_lists.saveUrl+"\n", file=F)
     F.close()
     
@@ -72,23 +68,23 @@ class utillClass(threading.Thread):
           temp_face_location = face_recognition.load_image_file(base_image_path)
         except Exception as E:
             print(E, end=" ")
-            self.saveFileErrorHandling("get_faceKeyFrame exception handling - 알수없는 형식", base_image_path)
+            self.saveFileErrorHandling("get_faceKeyFrame exception handling - 알수없는 형식", i_lists)
             continue
         
         w, h, color = temp_face_location.shape
 
         if(w<= 112 or h<=112):
-          self.saveFileErrorHandling(" 삭제합니다. - 크기 too small", i_lists)
+          self.saveFileErrorHandling(" delete. - size too small", i_lists)
           continue
 
-        if(w>=4000 or h>=4000):
-          self.saveFileErrorHandling(" 삭제합니다. - 크기 too small", i_lists)
+        if(w>=6000 or h>=6000):
+          self.saveFileErrorHandling(" delete. - size too big", i_lists)
           continue
 
         temp_encoding = face_recognition.face_encodings(temp_face_location)
 
         if len(temp_encoding) == 0:
-          self.saveFileErrorHandling(" 삭제합니다. - 얼굴 없는 사진", i_lists)
+          self.saveFileErrorHandling(" delete. - no face", i_lists)
 
   def get_faceDetection(self, pageUrl):
     base_image_paths = glob.glob('./imgs/*.jpg')
@@ -112,3 +108,16 @@ class utillClass(threading.Thread):
 
 
   
+  def moveAndDelete(self, toPath:str, fromPath:str, currentTimeDir:str, folderName='frames_', ext='jpg'):
+    count=0
+    print(fromPath+ currentTimeDir+"*."+ext)    
+    for i in glob.glob(fromPath+ currentTimeDir+"/*."+ext):
+      print("move " + i)
+      newName = toPath+currentTimeDir +"_"+str(count)+"."+ext
+      print(newName)
+      shutil.move(i, newName)
+      count+=1
+  
+    os.rmdir(fromPath+ currentTimeDir+"/")
+
+

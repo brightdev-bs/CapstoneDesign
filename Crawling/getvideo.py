@@ -13,8 +13,15 @@ from selenium.webdriver.common.keys import Keys
 import videokf as vf
 import face_recognition
 import glob
+import shutil
 
-class _Video(threading.Thread):
+import utills
+
+from argparser import args 
+
+
+class _Video(utills.utillClass):
+
   def __init__(self, loop_time = 1.0/60):
     print("Start")
     self.timeout = loop_time
@@ -22,31 +29,7 @@ class _Video(threading.Thread):
     self.keyword='강남스타일' #<--------------원하는 키워드입력! 위의 url은 변경하지 말것
 
     super(_Video, self).__init__()
-    
-  def get_Video(self,url):
-    yt=pytube.YouTube(url)
-    videos=yt.streams.all()
-    
-    for i in range(len(videos)):  #비디오 길이
-      print(i,',',videos[i])
 
-    cNum=14 #화질 0~21
-
-    down_dir="./videos/"
-    os.makedirs(down_dir, exist_ok = True)
-    videos[cNum].download(down_dir)
-    now = datetime.datetime.now()
-    current_time = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "__" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second)
-    newFileName = current_time + ".mp4"
-    oriFileName = videos[cNum].default_filename
-
-    subprocess.call(['ffmpeg','-i',os.path.join(down_dir,oriFileName),os.path.join(down_dir,newFileName)])
-    print("========================")
-    print(oriFileName+" 저장 완료")
-    print("========================")
-    video_path="./videos/"+newFileName
-
-    return video_path
 
   def get_UrlList(self):
     url = self.BASE_SEARCH_URL+self.keyword
@@ -64,44 +47,83 @@ class _Video(threading.Thread):
         url_list.append('{}{}'.format('https://www.youtube.com',i.get('href')))
 
     return url_list
+  
+  def get_Video(self, url:str):
+    yt=pytube.YouTube(url)
+    videos=yt.streams.all()
+    
+    print("*******************************len"+str(len(videos)))
 
-  def get_faceKeyFrame(self, paths):
-    for base_image_path in paths:
-      temp_face_location = face_recognition.load_image_file(base_image_path)
-      temp_encoding = face_recognition.face_encodings(temp_face_location)
-      if len(temp_encoding) == 0:
-        print(base_image_path + "를 삭제하였습니다.")
-        os.remove(base_image_path)
+    for i in range(len(videos)):  #비디오 길이
+      print(i,',',videos[i])
+     
+    cNum=14 #화질 0~21
 
-  def get_Frame(self,video_path):
-    vf.extract_keyframes(video_path, method='iframes', output_dir_keyframes='frames')
-    time.sleep(3)
+    down_dir=args.saveVideoDir
+    os.makedirs(args.saveDir, exist_ok = True)
+    os.makedirs(args.garbageDir, exist_ok = True)
+    os.makedirs(args.saveVideoDir, exist_ok = True)
+    
+    videos[cNum].download(down_dir)
     now = datetime.datetime.now()
     current_time = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "__" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second)
-    current_time_dir = 'frames_' + current_time
+    newFileName = current_time + ".mp4"
+    oriFileName = videos[cNum].default_filename
 
-    os.rename("./videos/frames", current_time_dir)
-    print("폴더명 변경")
+    subprocess.call(['ffmpeg','-i',os.path.join(down_dir,oriFileName),os.path.join(down_dir,newFileName)])
+    print("========================")
+    print(oriFileName+" 저장 완료")
+    print("========================")
+    video_path=args.saveVideoDir+newFileName
 
-    base_image_paths = glob.glob('./'+current_time_dir+'/*.jpg')
-    self.get_faceKeyFrame(base_image_paths)
+    return utills.lists(video_path, url)
 
+ 
+  def get_Frame(self, video_list:utills.lists, current_time_dir:str):
+    vf.extract_keyframes(video_list.savePath, method='iframes', output_dir_keyframes=current_time_dir)
+
+    lists = []
+    
+    for i in glob.glob(args.saveVideoDir + current_time_dir+"/*.jpg"):
+      lists.append(utills.lists(i, video_list.saveUrl))
+    
+    return lists
+
+    
   def run(self):
     print("SEARCH_KEYWORD: "+ self.keyword )
     url_list=self.get_UrlList()
     count=1
 
-    # for url in url_list:
-    #   print("++++++++++++ {} 번째 동영상 저장 시작++++++++++++".format(count))
-    #   count+=1
-    #   video_path=self.get_Video(url)
-    #   self.get_Frame(video_path)
-    #   time.sleep(3)
-
-    print("++++++++++++ {} 번째 동영상 저장 시작++++++++++++".format(count))
-    video_path=self.get_Video(url_list[0])
-    self.get_Frame(video_path)
+    print(url_list)
     
+    for url in url_list:
+       print("++++++++++++ {} 번째 동영상 저장 시작++++++++++++".format(count))
+       count+=1
+       now = datetime.datetime.now()
+       current_time = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second)
+       current_time_dir = 'frames_' + current_time
+       
+       video_list=self.get_Video(url)
+       
+       time.sleep(1)
+       
+       try:
+        frames = self.get_Frame(video_list, current_time_dir)
+        self.get_faceKeyFrame(frames)
+
+       
+       except Exception as E:
+           print(E)
+           self.saveFileErrorHandling("remove only record file", video_list)
+           continue
+         
+       self.moveAndDelete(args.saveDir, args.saveVideoDir, current_time_dir, "frames_")
+       time.sleep(3)
+       
+
+   
     print("키워드 "+self.keyword+"에 대한 동영상 저장 완료")
   
-_Video().run()
+if __name__ == '__main__':
+  _Video().run()

@@ -5,7 +5,9 @@ import requests as req
 from urllib import request
 from bs4 import BeautifulSoup as bs
 
+
 from utills import lists
+from argparser import args
 
 import time
 import datetime
@@ -20,7 +22,7 @@ import sys
 
 class _DCImage(utills.utillClass):
   def __init__(self, loop_time = 1.0/60):
-    print("Ilbe Crawler Init")
+    print("DCinside Crawler Init")
     self.timeout = loop_time
     self.BASE_PARSER_URL = "https://gall.dcinside.com/m"
     self.DC = "https://gall.dcinside.com/"
@@ -92,11 +94,18 @@ class _DCImage(utills.utillClass):
         file_ext = img_url.split('.')[-1]
 
         current_time = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "__" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second)
-        savedir ="./imgs/"
+
+
+        savedir = args.saveDir
+        garbagedir = args.garbageDir
+        
         savename = savedir+current_time + str(count)+"."+file_ext
         count+=1
+        
         os.makedirs(savedir, exist_ok = True)
+        os.makedirs(garbagedir, exist_ok = True)
 
+        
         opener = request.build_opener()
         opener.addheaders = [('User-agent', self.user_Agent), ('Referer', image_response.url)]
         
@@ -119,10 +128,19 @@ class _DCImage(utills.utillClass):
         
       for url in url_list:
           # vf.extract_keyframes(url, method='iframes', output_dir_keyframes='./img')
+          
           view = url
           time.sleep(2)
-          saveInformation = self.get_Image(view)
-          self.get_faceKeyFrame(saveInformation)
+          try:
+            saveInformation = self.get_Image(view)
+            self.get_faceKeyFrame(saveInformation)
+
+          except AttributeError as E:
+            #get_image에서 soup가 null(cotent가 null)일때 일어나는 Exception
+            print(E)
+            
+            continue
+            
           # self.get_faceDetection(view)
           count += 1
 
