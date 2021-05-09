@@ -50,25 +50,21 @@ class _Video(utills.utillClass):
   
   def get_Video(self, url:str):
     yt=pytube.YouTube(url)
-    videos=yt.streams.all()
+    videos=yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
     
-    print("*******************************len"+str(len(videos)))
-
-    for i in range(len(videos)):  #비디오 길이
-      print(i,',',videos[i])
-     
-    cNum=14 #화질 0~21
+    #print("*******************************len"+str(len(videos)))
+    #cNum=14 #화질 0~21
 
     down_dir=args.saveVideoDir
     os.makedirs(args.saveDir, exist_ok = True)
     os.makedirs(args.garbageDir, exist_ok = True)
     os.makedirs(args.saveVideoDir, exist_ok = True)
     
-    videos[cNum].download(down_dir)
+    videos.download(down_dir)
     now = datetime.datetime.now()
     current_time = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "__" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second)
     newFileName = current_time + ".mp4"
-    oriFileName = videos[cNum].default_filename
+    oriFileName = videos.default_filename
 
     subprocess.call(['ffmpeg','-i',os.path.join(down_dir,oriFileName),os.path.join(down_dir,newFileName)])
     print("========================")
