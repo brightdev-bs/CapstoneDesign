@@ -20,15 +20,31 @@ class saveFileErrorHandling(Exception):
         os.remove(savePath)
         return string
 '''
+
+
+'''
+      DTO lists
+      savePath : 경로
+      saveUrl : 다운받은 URL
+'''
 class lists:
     
     def __init__(self, savePath:str, saveUrl:str):
         self.savePath = savePath
         self.saveUrl = saveUrl
-
+        
     def getLists(self):
         return self.savePath, self.saveUrl
 
+    def parseName(self):
+        return self.savePath.split("/")[-1]
+
+
+
+'''
+    크롤링 class의 기본 base class
+
+'''
 class utillClass(threading.Thread):
   
   def __init__(self, loop_time = 1.0/60):
@@ -48,18 +64,16 @@ class utillClass(threading.Thread):
     F = open("./imgs/LogOfSaveFile.txt","a")
     print(string+"-"+i_lists.saveUrl+"\n", file=F)
     F.close()
-    
+  
+
+#크롤링 이미지에서 얼굴만 추출하는 함수 
   def get_faceKeyFrame(self, saveInformation:lists):
     
-      base_image_paths = []
+      succ_lists = []
     
-      for i in saveInformation:
-          path = i
-          base_image_paths.append(path)
-          
       print("이미지 수집 완료. 이미지 분류를 시작합니다.")
       time.sleep(2)
-      for i_lists in base_image_paths:
+      for i_lists in saveInformation:
 
         base_image_path = i_lists.savePath
         print(base_image_path)
@@ -77,7 +91,7 @@ class utillClass(threading.Thread):
           self.saveFileErrorHandling(" delete. - size too small", i_lists)
           continue
 
-        if(w>=6000 or h>=6000):
+        if(w>=4900 or h>=4900):
           self.saveFileErrorHandling(" delete. - size too big", i_lists)
           continue
 
@@ -85,8 +99,14 @@ class utillClass(threading.Thread):
 
         if len(temp_encoding) == 0:
           self.saveFileErrorHandling(" delete. - no face", i_lists)
+        else:
+            succ_lists.append(i_lists)
+      
+      return succ_lists
+      
 
-  def get_faceDetection(self, pageUrl):
+#분류완료후 DB에 전송
+  def sender(self, pageUrl):
     base_image_paths = glob.glob('./imgs/*.jpg')
     if len(base_image_paths) != 0:
       print("이미지 분류 완료. 이미지 등록을 시작합니다.")
@@ -107,8 +127,8 @@ class utillClass(threading.Thread):
       pass
 
 
-  
-  def moveAndDelete(self, toPath:str, fromPath:str, currentTimeDir:str, folderName='frames_', ext='jpg'):
+  #dummy function
+  def moveAndDelete(self, toPath:str, fromPath:str, currentTimeDir:str="", folderName:str='frames_', ext:str='jpg'):
     count=0
     print(fromPath+ currentTimeDir+"*."+ext)    
     for i in glob.glob(fromPath+ currentTimeDir+"/*."+ext):

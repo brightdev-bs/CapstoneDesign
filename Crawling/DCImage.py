@@ -20,6 +20,7 @@ import sys
 
 #import videokf as vf
 
+#DCinside 크롤링하는 class
 class _DCImage(utills.utillClass):
   def __init__(self, loop_time = 1.0/60):
     print("DCinside Crawler Init")
@@ -30,7 +31,7 @@ class _DCImage(utills.utillClass):
 
     super(_DCImage, self).__init__()
     
-
+#카테고리 긁어오는 함수
   def get_Categories(self):
     res = req.get(self.BASE_PARSER_URL,headers = {'User-Agent' : self.user_Agent})
     soup = bs(res.content, 'lxml')
@@ -43,7 +44,7 @@ class _DCImage(utills.utillClass):
     
     return category_url
 
-
+#게시판 페이지 하나 긁어오는 함수
   def set_Category(self, keyUrl):
     url = keyUrl
     myurl , myid = url.split('?id=')
@@ -53,7 +54,7 @@ class _DCImage(utills.utillClass):
 
     return soup
   
-
+#image가 있는 게시판만 순회
   def get_UrlList(self, soup):
     posts = soup.find('tbody').find_all('tr')     
     
@@ -68,7 +69,7 @@ class _DCImage(utills.utillClass):
         url_list.append(self.DC+title_tag['href'])
     return url_list
 
-
+#이미지 다운로드
   def get_Image(self, view):
     now = datetime.datetime.now()
     count = 0
@@ -111,7 +112,7 @@ class _DCImage(utills.utillClass):
         
         request.install_opener(opener)
         request.urlretrieve(img_url, savename)
-        images.append(lists(savename, img_url))
+        images.append(lists(savename, image_response.url))
     
     return images
 
@@ -126,15 +127,17 @@ class _DCImage(utills.utillClass):
       category_page = self.set_Category(category_list.get(key_name))
       url_list = self.get_UrlList(category_page)
         
+      pics_lists = []
+
+
       for url in url_list:
           # vf.extract_keyframes(url, method='iframes', output_dir_keyframes='./img')
           
           view = url
-          time.sleep(2)
+          time.sleep(3)
           try:
             saveInformation = self.get_Image(view)
-            self.get_faceKeyFrame(saveInformation)
-
+            pics_lists.extend(self.get_faceKeyFrame(saveInformation))
           except AttributeError as E:
             #get_image에서 soup가 null(cotent가 null)일때 일어나는 Exception
             print(E)

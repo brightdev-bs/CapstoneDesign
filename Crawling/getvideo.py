@@ -19,7 +19,9 @@ import utills
 
 from argparser import args 
 
-
+'''
+    youtube에서 video 받아오는 class 
+'''
 class _Video(utills.utillClass):
 
   def __init__(self, loop_time = 1.0/60):
@@ -31,6 +33,7 @@ class _Video(utills.utillClass):
     super(_Video, self).__init__()
 
 
+  # get uri lists
   def get_UrlList(self):
     url = self.BASE_SEARCH_URL+self.keyword
 
@@ -48,12 +51,14 @@ class _Video(utills.utillClass):
 
     return url_list
   
-  def get_Video(self, url:str):
+  #video youtube에서 받아와서 ffmpeg로 변환 
+  def get_Video(self, url:str, current_time:str):
     yt=pytube.YouTube(url)
+    
+    #가장 화질 괜찮은것 받아옴
     videos=yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
     
     #print("*******************************len"+str(len(videos)))
-    #cNum=14 #화질 0~21
 
     down_dir=args.saveVideoDir
     os.makedirs(args.saveDir, exist_ok = True)
@@ -61,27 +66,33 @@ class _Video(utills.utillClass):
     os.makedirs(args.saveVideoDir, exist_ok = True)
     
     videos.download(down_dir)
-    now = datetime.datetime.now()
-    current_time = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "__" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second)
-    newFileName = current_time + ".mp4"
+    newFileName = current_time+videos.default_filename
     oriFileName = videos.default_filename
 
     subprocess.call(['ffmpeg','-i',os.path.join(down_dir,oriFileName),os.path.join(down_dir,newFileName)])
+
     print("========================")
     print(oriFileName+" 저장 완료")
     print("========================")
     video_path=args.saveVideoDir+newFileName
 
-    return utills.lists(video_path, url)
+    #os.remove(args.saveVideoDir+oriFileName)
 
- 
+    return oriFileName, utills.lists(video_path, url)
+
+ #frame 추출
   def get_Frame(self, video_list:utills.lists, current_time_dir:str):
     vf.extract_keyframes(video_list.savePath, method='iframes', output_dir_keyframes=current_time_dir)
 
     lists = []
     
+    count = 0 
+
     for i in glob.glob(args.saveVideoDir + current_time_dir+"/*.jpg"):
-      lists.append(utills.lists(i, video_list.saveUrl))
+      newname = args.saveVideoDir + current_time_dir + "/" + current_time_dir + "_" + str(count) + ".jpg" 
+      os.rename(i, newname)
+      count+=1 
+      lists.append(utills.lists(newname, video_list.saveUrl))
     
     return lists
 
@@ -93,32 +104,48 @@ class _Video(utills.utillClass):
 
     print(url_list)
     
+    pics_lists = []
+
+    oriName_lists = []
+
+
     for url in url_list:
+       
        print("++++++++++++ {} 번째 동영상 저장 시작++++++++++++".format(count))
        count+=1
        now = datetime.datetime.now()
        current_time = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second)
        current_time_dir = 'frames_' + current_time
        
-       video_list=self.get_Video(url)
+       ori_name, video_list=self.get_Video(url, current_time)
+       oriName_lists.append(ori_name)
        
        time.sleep(1)
-       
-       try:
-        frames = self.get_Frame(video_list, current_time_dir)
-        self.get_faceKeyFrame(frames)
+       saveInformation = self.get_Frame(video_list, current_time_dir)
+       pics_lists.extend(self.get_faceKeyFrame(saveInformation))
 
+       try:
+           print("1")
        
+       #음성파일 Exception로 제거
        except Exception as E:
            print(E)
            self.saveFileErrorHandling("remove only record file", video_list)
            continue
          
-       self.moveAndDelete(args.saveDir, args.saveVideoDir, current_time_dir, "frames_")
-       time.sleep(3)
+       #self.moveAndDelete(args.saveDir, args.saveVideoDir, current_time_dir, "frames_")
        
+       shutil.move(video_list.savePath, args.saveVideoDir+current_time_dir+"/"+ori_name)
+       time.sleep(3)
+       if(count>=5):
+           break
+    #trim videos
+    for i in oriName_lists:
+        print("trimming" + i)
+        os.remove(args.saveVideoDir+i)
+        
 
-   
+
     print("키워드 "+self.keyword+"에 대한 동영상 저장 완료")
   
 if __name__ == '__main__':
