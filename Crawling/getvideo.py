@@ -25,13 +25,10 @@ from argparser import args
 class _Video(utills.utillClass):
 
   def __init__(self, loop_time = 1.0/60):
+    super(_Video, self).__init__()
     print("Start")
-    self.timeout = loop_time
     self.BASE_SEARCH_URL = "https://www.youtube.com/results?search_query="
     self.keyword='강남스타일' #<--------------원하는 키워드입력! 위의 url은 변경하지 말것
-
-    super(_Video, self).__init__()
-
 
   # get uri lists
   def get_UrlList(self):
@@ -61,9 +58,7 @@ class _Video(utills.utillClass):
     #print("*******************************len"+str(len(videos)))
 
     down_dir=args.saveVideoDir
-    os.makedirs(args.saveDir, exist_ok = True)
-    os.makedirs(args.garbageDir, exist_ok = True)
-    os.makedirs(args.saveVideoDir, exist_ok = True)
+    
     
     videos.download(down_dir)
     newFileName = current_time+videos.default_filename
@@ -89,10 +84,13 @@ class _Video(utills.utillClass):
     count = 0 
 
     for i in glob.glob(args.saveVideoDir + current_time_dir+"/*.jpg"):
-      newname = args.saveVideoDir + current_time_dir + "/" + current_time_dir + "_" + str(count) + ".jpg" 
-      os.rename(i, newname)
-      count+=1 
-      lists.append(utills.lists(newname, video_list.saveUrl))
+      #newname = args.saveVideoDir + current_time_dir + "/" + current_time_dir + "_" + str(count) + ".jpg" 
+      #os.rename(i, newname)
+      #count+=1 
+      #lists.append(utills.lists(newname, video_list.saveUrl))
+      #이름바꾸면 얼굴인식 성능이 달라져서 이름 변경 잠정보류
+
+      lists.append(utills.lists(i, video_list.saveUrl))
     
     return lists
 
@@ -137,8 +135,7 @@ class _Video(utills.utillClass):
        
        shutil.move(video_list.savePath, args.saveVideoDir+current_time_dir+"/"+ori_name)
        time.sleep(3)
-       if(count>=5):
-           break
+       
     #trim videos
     for i in oriName_lists:
         print("trimming" + i)

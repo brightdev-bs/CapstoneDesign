@@ -48,9 +48,15 @@ class lists:
 class utillClass(threading.Thread):
   
   def __init__(self, loop_time = 1.0/60):
+    super(utillClass, self).__init__()
     self.timeout = loop_time
     self.user_Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
-    super(utillClass, self).__init__()
+    
+    os.makedirs(args.saveDir, exist_ok = True)
+    os.makedirs(args.garbageDir, exist_ok = True)
+    os.makedirs(args.saveVideoDir, exist_ok = True)
+    os.makedirs(args.DBfileDir, exist_ok = True)
+    
     
   def saveFileErrorHandling(self, string:str, i_lists:lists):
     print(string+ " - "+i_lists.saveUrl)
@@ -87,10 +93,12 @@ class utillClass(threading.Thread):
         
         w, h, color = temp_face_location.shape
 
+        #너무 작은 이미지 제거
         if(w<= 112 or h<=112):
           self.saveFileErrorHandling(" delete. - size too small", i_lists)
           continue
 
+        #너무 큰 사진(카드 뉴스 등) 제거 
         if(w>=4900 or h>=4900):
           self.saveFileErrorHandling(" delete. - size too big", i_lists)
           continue
@@ -125,7 +133,6 @@ class utillClass(threading.Thread):
     else:
       print("Get Face Dection PASS")
       pass
-
 
   #dummy function
   def moveAndDelete(self, toPath:str, fromPath:str, currentTimeDir:str="", folderName:str='frames_', ext:str='jpg'):

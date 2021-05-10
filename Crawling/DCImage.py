@@ -23,13 +23,11 @@ import sys
 #DCinside 크롤링하는 class
 class _DCImage(utills.utillClass):
   def __init__(self, loop_time = 1.0/60):
+    super(_DCImage, self).__init__()
     print("DCinside Crawler Init")
-    self.timeout = loop_time
+  
     self.BASE_PARSER_URL = "https://gall.dcinside.com/m"
     self.DC = "https://gall.dcinside.com/"
-    self.user_Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
-
-    super(_DCImage, self).__init__()
     
 #카테고리 긁어오는 함수
   def get_Categories(self):
@@ -102,10 +100,6 @@ class _DCImage(utills.utillClass):
         
         savename = savedir+current_time + str(count)+"."+file_ext
         count+=1
-        
-        os.makedirs(savedir, exist_ok = True)
-        os.makedirs(garbagedir, exist_ok = True)
-
         
         opener = request.build_opener()
         opener.addheaders = [('User-agent', self.user_Agent), ('Referer', image_response.url)]
