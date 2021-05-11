@@ -110,29 +110,33 @@ class utillClass(threading.Thread):
           self.saveFileErrorHandling(" delete. - no face", i_lists)
         else:
             succ_lists.append(i_lists)
+            self.sender(i_lists.saveUrl)
       
       return succ_lists
       
 
 #분류완료후 DB에 전송
   def sender(self, pageUrl):
-    base_image_paths = glob.glob('./imgs/*.jpg')
+    base_image_paths = glob.glob('./imgs/image/*.jpg')
     if len(base_image_paths) != 0:
       print("이미지 분류 완료. 이미지 등록을 시작합니다.")
       time.sleep(2)
+      count =0
       for base_image_path in base_image_paths:
         # files = {'face': open(base_image_path, 'rb')}
         fileName = base_image_path.split("/")[-1]
+
+        count+=1
         
         try:
           # result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface', files=files, data={'url': pageUrl}).text
-          result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface',  data={'fileName': fileName,'url': pageUrl}).text
+          result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface',  json={"fileName": fileName, "url": pageUrl})
           print(result)
         except Exception as E:
           print("Encode 전송 에러")
           print(E)
           pass
-      print("이미지 등록 완료.")
+      print("이미지 전송 완료.")
     else:
       print("Get Face Dection PASS")
       pass
