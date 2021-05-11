@@ -72,7 +72,7 @@ class utillClass(threading.Thread):
     F.close()
   
 
-#크롤링 이미지에서 얼굴만 추출하는 함수 
+#크롤링 이미지에서 얼굴이 있는 이미지만 추출하는 함수
   def get_faceKeyFrame(self, saveInformation:lists):
     
       succ_lists = []
@@ -82,6 +82,7 @@ class utillClass(threading.Thread):
       for i_lists in saveInformation:
 
         base_image_path = i_lists.savePath
+
         print(base_image_path)
         
         try:
@@ -120,10 +121,12 @@ class utillClass(threading.Thread):
       print("이미지 분류 완료. 이미지 등록을 시작합니다.")
       time.sleep(2)
       for base_image_path in base_image_paths:
-        files = {'face': open(base_image_path, 'rb')}
+        # files = {'face': open(base_image_path, 'rb')}
+        fileName = base_image_path.split("/")[-1]
         
         try:
-          result = req.post('http://api.kuuwang.com/face/encode', files=files, data={'url': pageUrl}).text
+          # result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface', files=files, data={'url': pageUrl}).text
+          result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface',  data={'fileName': fileName,'url': pageUrl}).text
           print(result)
         except Exception as E:
           print("Encode 전송 에러")

@@ -4,6 +4,7 @@ import utills
 import requests as req
 from urllib import request
 from bs4 import BeautifulSoup as bs
+from utills import utillClass
 
 
 from utills import lists
@@ -120,7 +121,7 @@ class _DCImage(utills.utillClass):
     for key_name in category_list.keys():      
       category_page = self.set_Category(category_list.get(key_name))
       url_list = self.get_UrlList(category_page)
-        
+
       pics_lists = []
 
 
@@ -138,7 +139,7 @@ class _DCImage(utills.utillClass):
             
             continue
             
-          # self.get_faceDetection(view)
+          utillClass.sender(pics_lists)
           count += 1
 
       print(key_name + " 카테고리의 모든 수집을 완료했습니다. 다음 카테고리로 넘어갑니다.")
