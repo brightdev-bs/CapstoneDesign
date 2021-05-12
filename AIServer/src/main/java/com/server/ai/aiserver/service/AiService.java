@@ -27,6 +27,11 @@ public class AiService {
     }
 
     public void run(){
+        System.out.println("얼굴 매칭....");
         //cmd
+        System.out.println("결과 전송....");
+        System.out.println("종료.");
+
+
     }
 }
