@@ -133,6 +133,7 @@ class _DCImage(utills.utillClass):
           try:
             saveInformation = self.get_Image(view)
             pics_lists.extend(self.get_faceKeyFrame(saveInformation))
+
           except AttributeError as E:
             #get_image에서 soup가 null(cotent가 null)일때 일어나는 Exception
             print(E)
@@ -141,7 +142,9 @@ class _DCImage(utills.utillClass):
 
           count += 1
 
+      self.sender(pics_lists)
       print(key_name + " 카테고리의 모든 수집을 완료했습니다. 다음 카테고리로 넘어갑니다.")
+      pics_lists.clear()
 
 if __name__ == '__main__':
     _DCImage().run()

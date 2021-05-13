@@ -134,15 +134,19 @@ class _Video(utills.utillClass):
        #self.moveAndDelete(args.saveDir, args.saveVideoDir, current_time_dir, "frames_")
        
        shutil.move(video_list.savePath, args.saveVideoDir+current_time_dir+"/"+ori_name)
+       if(count>4):
+           break
        time.sleep(3)
-       
+    
+    self.sender(pics_lists)
+
     #trim videos
     for i in oriName_lists:
         print("trimming" + i)
         os.remove(args.saveVideoDir+i)
         
 
-
+    pics_lists.clear()
     print("키워드 "+self.keyword+"에 대한 동영상 저장 완료")
   
 if __name__ == '__main__':

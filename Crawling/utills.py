@@ -11,6 +11,8 @@ import glob
 import threading
 import sys
 import shutil
+from PIL import Image
+import imagehash
 
 from argparser import args
 
@@ -39,8 +41,13 @@ class lists:
     def parseName(self):
         return self.savePath.split("/")[-1]
 
+    #need to be str
+    def getHash(self):
+        img = Image.open(self.savePath)
+        hash = (imagehash.average_hash(img))
+        return hash
 
-
+        
 '''
     크롤링 class의 기본 base class
 
@@ -110,33 +117,62 @@ class utillClass(threading.Thread):
           self.saveFileErrorHandling(" delete. - no face", i_lists)
         else:
             succ_lists.append(i_lists)
-            self.sender(i_lists.saveUrl)
+            #self.sender(i_lists.saveUrl)
       
       return succ_lists
       
 
 #분류완료후 DB에 전송
-  def sender(self, pageUrl):
-    base_image_paths = glob.glob('./imgs/image/*.jpg')
+#이미지의 Hash 정보를 이용하여 유일한 이미지만 저장소에 저장되게 관리한다.
+#이미지나 url의 값은 DB에서 중복되도 된다.
+#보낸 시간대를 primary key로 사용한다
+
+  def sender(self, base_image_paths:lists):
+    
+   
     if len(base_image_paths) != 0:
       print("이미지 분류 완료. 이미지 등록을 시작합니다.")
       time.sleep(2)
+      
+      now = datetime.datetime.now()
       count =0
+
       for base_image_path in base_image_paths:
         # files = {'face': open(base_image_path, 'rb')}
-        fileName = base_image_path.split("/")[-1]
-
+        #fileName = base_image_path.split("/")[-1]
+        
         count+=1
+
+        file_ext = ("."+base_image_path.savePath.split('.')[-1]).strip()
+
+        
+
+        print(file_ext)
+
+        file_id = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) +"_"+str(count) + file_ext
+
+        file_hash = str(base_image_path.getHash())
+
+        file_url = base_image_path.saveUrl
         
         try:
+
+          print(file_id)
+          print(file_url)
+          print(file_hash)
+
           # result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface', files=files, data={'url': pageUrl}).text
-          result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface',  json={"fileName": fileName, "url": pageUrl})
-          print(result)
+          # result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface', json={"id": file_id, "url": file_url, "hash": file_hash})
+          # print(result)
+
         except Exception as E:
           print("Encode 전송 에러")
           print(E)
+          self.saveFileErrorHandling("Encode 전송 에러", base_image_path)
           pass
+        shutil.move(base_image_path.savePath, args.DBfileDir+file_hash+file_ext)
       print("이미지 전송 완료.")
+      
     else:
       print("Get Face Dection PASS")
       pass
