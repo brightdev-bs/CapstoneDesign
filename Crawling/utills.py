@@ -161,8 +161,7 @@ class utillClass(threading.Thread):
           print(file_url)
           print(file_hash)
 
-          # result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface', files=files, data={'url': pageUrl}).text
-          # result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface', json={"id": file_id, "url": file_url, "hash": file_hash})
+          # result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface', json ={"url": file_url, "hash": file_hash})
           # print(result)
 
         except Exception as E:
