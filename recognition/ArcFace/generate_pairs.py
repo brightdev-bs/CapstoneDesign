@@ -1,17 +1,24 @@
 # Implementation of pairs.txt from lfw dataset
 # Section f: http://vis-www.cs.umass.edu/lfw/lfw.pdf
 # More succint, less explicit: http://vis-www.cs.umass.edu/lfw/README.txt
-
+import time
 import glob
 import io
 import os
 import random
+import argparse
 from argparse import ArgumentParser, Namespace
 from typing import List, Optional, Set, Tuple, cast
-
 import numpy as np
-
 from facenet_sandberg.utils import transform_to_lfw_format
+
+import mxnet as mx
+from mxnet import ndarray as nd
+import pickle
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'eval'))
+import lfw
 
 Mismatch = Tuple[str, int, str, int]
 Match = Tuple[str, int, int]
@@ -33,6 +40,7 @@ def write_pairs_to_file(fname: str,
             for match in match_fold:
                 line = '{}\t{}\t{}\n'.format(match[0], match[1], match[2])
                 fpairs.write(line)
+            
             for mismatch in mismatch_fold:
                 line = '{}\t{}\t{}\t{}\n'.format(
                     mismatch[0], mismatch[1], mismatch[2], mismatch[3])
@@ -108,6 +116,7 @@ def generate_pairs(
     matches = []
     mismatches = []
     for fold in people_folds:
+        #matches는 필요 없음.
         matches.append(_make_matches(image_dir,
                                      fold,
                                      num_matches_mismatches))
@@ -133,6 +142,31 @@ def _cli() -> None:
         args.pairs_file_name)
 
 
+def lfw_to_pack():
+    # general
+    args = _parse_arguments()
+    lfw_dir = args.data_dir
+    image_size = [int(x) for x in args.image_size.split(',')]
+    lfw_pairs = lfw.read_pairs(os.path.join(lfw_dir, 'pairs.txt'))
+    lfw_paths, issame_list = lfw.get_paths(lfw_dir, lfw_pairs)
+    lfw_bins = []
+    # lfw_data = nd.empty((len(lfw_paths), 3, image_size[0], image_size[1]))
+    i = 0
+    for path in lfw_paths:
+        with open(path, 'rb') as fin:
+            _bin = fin.read()
+            lfw_bins.append(_bin)
+            # img = mx.image.imdecode(_bin)
+            # img = nd.transpose(img, axes=(2, 0, 1))
+            # lfw_data[i][:] = img
+            i += 1
+            if i % 1000 == 0:
+                print('loading lfw', i)
+
+    with open(args.output, 'wb') as f:
+        pickle.dump((lfw_bins, issame_list), f, protocol=pickle.HIGHEST_PROTOCOL)
+
+
 def _parse_arguments() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument('--image_dir',
@@ -151,8 +185,14 @@ def _parse_arguments() -> Namespace:
                         type=int,
                         required=True,
                         help='Number of matches/mismatches per fold.')
+    parser.add_argument('--data-dir', default='data', help='')                   #서버에서 여기 경로 바꾸기!
+    parser.add_argument('--image-size', type=str, default='112,112', help='')
+    parser.add_argument('--output', default='data/lfw.bin', help='path to save.')  #서버에서 여기 경로 바꾸기!
     return parser.parse_args()
 
 
 if __name__ == '__main__':
+    start = time.time() 
     _cli()
+    lfw_to_pack()
+    print("걸린 시간 : ", time.time() - start)

@@ -43,7 +43,6 @@ from sklearn.decomposition import PCA
 import mxnet as mx
 from mxnet import ndarray as nd
 
-
 class LFold:
     def __init__(self, n_splits=2, shuffle=False):
         self.n_splits = n_splits
@@ -65,14 +64,16 @@ def calculate_roc(thresholds,
     assert (embeddings1.shape[0] == embeddings2.shape[0])
     assert (embeddings1.shape[1] == embeddings2.shape[1])
     nrof_pairs = min(len(actual_issame), embeddings1.shape[0])
+    #print("nrof_pairs")
+    #print(nrof_pairs)        ----------------------------------> 10출력
     nrof_thresholds = len(thresholds)
+    #print(nrof_thresholds)    ----------------------------------> 400출력
     k_fold = LFold(n_splits=nrof_folds, shuffle=False)
 
     tprs = np.zeros((nrof_folds, nrof_thresholds))
     fprs = np.zeros((nrof_folds, nrof_thresholds))
     accuracy = np.zeros((nrof_folds))
     indices = np.arange(nrof_pairs)
-    #print('pca', pca)
 
     if pca == 0:
         diff = np.subtract(embeddings1, embeddings2)
@@ -102,6 +103,7 @@ def calculate_roc(thresholds,
         for threshold_idx, threshold in enumerate(thresholds):
             _, _, acc_train[threshold_idx] = calculate_accuracy(
                 threshold, dist[train_set], actual_issame[train_set])
+
         best_threshold_index = np.argmax(acc_train)
         #print('threshold', thresholds[best_threshold_index])
         for threshold_idx, threshold in enumerate(thresholds):
@@ -110,6 +112,7 @@ def calculate_roc(thresholds,
                                       threshold_idx], _ = calculate_accuracy(
                                           threshold, dist[test_set],
                                           actual_issame[test_set])
+
         _, _, accuracy[fold_idx] = calculate_accuracy(
             thresholds[best_threshold_index], dist[test_set],
             actual_issame[test_set])
@@ -120,8 +123,8 @@ def calculate_roc(thresholds,
 
 def calculate_accuracy(threshold, dist, actual_issame):
     predict_issame = np.less(dist, threshold)
-
-    tp = np.sum(np.logical_and(predict_issame, actual_issame))
+    print(predict_issame)
+    tp = np.sum(np.logical_and(predict_issame, actual_issame)) #true pair
     fp = np.sum(np.logical_and(predict_issame, np.logical_not(actual_issame)))
     tn = np.sum(
         np.logical_and(np.logical_not(predict_issame),
@@ -132,7 +135,6 @@ def calculate_accuracy(threshold, dist, actual_issame):
     fpr = 0 if (fp + tn == 0) else float(fp) / float(fp + tn)
     acc = float(tp + tn) / dist.size
     return tpr, fpr, acc
-
 
 def calculate_val(thresholds,
                   embeddings1,
@@ -170,8 +172,10 @@ def calculate_val(thresholds,
 
     val_mean = np.mean(val)
     far_mean = np.mean(far)
+    #print(far_mean)  ------------> 0.0
     val_std = np.std(val)
     return val_mean, val_std, far_mean
+
 
 
 def calculate_val_far(threshold, dist, actual_issame):
@@ -181,11 +185,16 @@ def calculate_val_far(threshold, dist, actual_issame):
         np.logical_and(predict_issame, np.logical_not(actual_issame)))
     n_same = np.sum(actual_issame)
     n_diff = np.sum(np.logical_not(actual_issame))
+    #print(n_same)
     #print(true_accept, false_accept)
     #print(n_same, n_diff)
+    #if(n_same == 0): 
+    #    return 0, 0
+    
     val = float(true_accept) / float(n_same)
     far = float(false_accept) / float(n_diff)
-    return val, far
+    #print("far %s" % (far))
+    return 0, far   # var -> 0으로 수정함
 
 
 def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
@@ -206,7 +215,7 @@ def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
                                       np.asarray(actual_issame),
                                       1e-3,
                                       nrof_folds=nrof_folds)
-    
+
     return tpr, fpr, accuracy, val, val_std, far
 
 
@@ -234,7 +243,7 @@ def load_bin(path, image_size):
             data_list[flip][i][:] = img
         if i % 1000 == 0:
             print('loading bin', i)
-    print(data_list[0].shape)
+    print(data_list[0].shape)  
     return (data_list, issame_list)
 
 
@@ -258,7 +267,6 @@ def test(data_set,
         _label = nd.ones(label_shape)
     for i in range(len(data_list)):
         data = data_list[i]
-        print(data)
         embeddings = None
         ba = 0
         while ba < data.shape[0]:
@@ -325,7 +333,7 @@ def test(data_set,
                                                  issame_list,
                                                  nrof_folds=nfolds)
     acc2, std2 = np.mean(accuracy), np.std(accuracy)
-    return acc1, std1, acc2, std2, _xnorm, embeddings_list
+    return acc1, std1, acc2, std2, _xnorm, embeddings_list # far = acc2였음
 
 
 def test_badcase(data_set,
@@ -659,8 +667,6 @@ if __name__ == '__main__':
             ver_list.append(data_set)
             ver_name_list.append(name)
 
-    print(ver_list)
-
     if args.mode == 0:
         for i in range(len(ver_list)):
             results = []
@@ -674,6 +680,7 @@ if __name__ == '__main__':
                       (ver_name_list[i], acc2, std2))
                 results.append(acc2)
             print('Max of [%s] is %1.5f' % (ver_name_list[i], np.max(results)))
+
     elif args.mode == 1:
         model = nets[0]
         test_badcase(ver_list[0], model, args.batch_size, args.target)
