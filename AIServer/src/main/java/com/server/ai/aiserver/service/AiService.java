@@ -31,23 +31,8 @@ public class AiService {
 
         //cmd
         try{
-            String cmd[] = new String[4];
-            cmd[0] ="cmd.exe";
-            // 명령어 모두 실해 후 종료 옵션.
-            cmd[1] = "/C";
-            cmd[2] = "pair.txt, .bin 파일 생성";
-            cmd[3] = "얼굴 인식, 결과 전송";
-
-            Runtime runtime = Runtime.getRuntime();
-            Process process = runtime.exec(cmd);
-
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(
-                            process.getInputStream()));
-            
-            String line;
-            while((line =br.readLine()) !=null)
-                System.out.println(line);
+//            cmd("bin 생성 && 얼굴 인식");
+            cmd("cd C:\\Users\\admin\\Desktop && mkdir test");
 
         }catch(Throwable t){
             t.printStackTrace();
@@ -57,5 +42,28 @@ public class AiService {
         System.out.println("종료.");
 
 
+    }
+    public void cmd(String command) throws IOException {
+        String cmd[] = new String[3];
+        cmd[0] ="cmd.exe";
+        // 명령어 모두 실해 후 종료 옵션.
+        cmd[1] = "/C";
+        cmd[2] = command;
+
+        Runtime runtime = Runtime.getRuntime();
+        Process process = runtime.exec(cmd);
+
+
+        BufferedReader br = new BufferedReader(
+                new InputStreamReader(
+                        process.getInputStream()));
+        String line;
+        while((line =br.readLine()) !=null)
+            System.out.println(line);
+    }
+
+    public static void main(String[] args) {
+        AiService aiService = new AiService();
+        aiService.run();
     }
 }
