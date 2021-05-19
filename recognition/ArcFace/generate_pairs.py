@@ -37,9 +37,11 @@ def write_pairs_to_file(fname: str,
                  encoding='utf-8') as fpairs:
         fpairs.write(metadata)
         for match_fold, mismatch_fold in zip(match_folds, mismatch_folds):
+            """
             for match in match_fold:
                 line = '{}\t{}\t{}\n'.format(match[0], match[1], match[2])
                 fpairs.write(line)
+            """
             
             for mismatch in mismatch_fold:
                 line = '{}\t{}\t{}\t{}\n'.format(

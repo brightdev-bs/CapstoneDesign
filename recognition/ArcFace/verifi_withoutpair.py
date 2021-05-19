@@ -43,6 +43,9 @@ from sklearn.decomposition import PCA
 import mxnet as mx
 from mxnet import ndarray as nd
 from PIL import Image
+import matplotlib.pyplot as plt
+
+save_even = []
 
 class LFold:
     def __init__(self, n_splits=2, shuffle=False):
@@ -106,7 +109,7 @@ def calculate_roc(thresholds,
                 threshold, dist[train_set], actual_issame[train_set])
 
         best_threshold_index = np.argmax(acc_train)
-        #print('threshold', thresholds[best_threshold_index])
+        print('threshold: {}'.format(thresholds[best_threshold_index]))
         for threshold_idx, threshold in enumerate(thresholds):
             tprs[fold_idx,
                  threshold_idx], fprs[fold_idx,
@@ -181,10 +184,10 @@ def calculate_val(thresholds,
 
 def calculate_val_far(threshold, dist, actual_issame):
     predict_issame = np.less(dist, threshold)
-    true_accept = np.sum(np.logical_and(predict_issame, actual_issame))
+    #true_accept = np.sum(np.logical_and(predict_issame, actual_issame))
     false_accept = np.sum(
         np.logical_and(predict_issame, np.logical_not(actual_issame)))
-    n_same = np.sum(actual_issame)
+    #n_same = np.sum(actual_issame)
     n_diff = np.sum(np.logical_not(actual_issame))
     #print(n_same)
     #print(true_accept, false_accept)
@@ -192,7 +195,7 @@ def calculate_val_far(threshold, dist, actual_issame):
     #if(n_same == 0): 
     #    return 0, 0
     
-    val = float(true_accept) / float(n_same)
+    #val = float(true_accept) / float(n_same)
     far = float(false_accept) / float(n_diff)
     #print("far %s" % (far))
     return 0, far   # var -> 0으로 수정함
@@ -220,7 +223,7 @@ def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
     return tpr, fpr, accuracy, val, val_std, far
 
 
-def load_bin(path, image_size):
+def load_bin(image_size):
     #try:
     #    with open(path, 'rb') as f:
     #        bins1, issame_list1 = pickle.load(f)  #py2
@@ -229,7 +232,6 @@ def load_bin(path, image_size):
     #        bins1, issame_list1 = pickle.load(f, encoding='bytes')  #py3
     
     ### 추가코드 #######################
-    
     target_image = './data/tom/tom_0001.jpg' #웹 클라이언트에서 받을 이미지
     crawling_folder = './data/ema/' # 크롤링 저장소 경로
     
@@ -239,37 +241,40 @@ def load_bin(path, image_size):
     #print("load folder : "+ str(os.listdir(crawling_folder)))
     
     with open(target_image, 'rb') as fp:
-                target_image = fp.read()
+        target_image = fp.read()
     
+
+    # negative fair만 계산할 수 있도록 코드 수정 완료
+    # 밑에 코드 지워도 될 것 같습니다.
     '''
      아래 코드는 negative fair만 있으면 
      tp np 계산할때 divided by zero 오류떠서 
      positive pair 하나 넣은거니
      나중 디버깅해서 삭제 or 더미로 남겨두세요
     '''
+    '''
     bins.append(target_image)
     bins.append(target_image)      
     issame_list.append(True)
     '''
     '''
+    '''
     
     for i in os.listdir(crawling_folder):
-        
         try:
             path = os.path.join(crawling_folder, i)
             Image.open(path)
         except IOError as E:
             print(E)
-            continue    
-        
+            continue  
+
         bins.append(target_image)
         with open(path, 'rb') as fp:
             bins.append(fp.read())
-            
+
         issame_list.append(False)    
-        
+
     ### 추가코드 #######################
-    
     data_list = []
     for flip in [0, 1]:
         data = nd.empty(
@@ -287,7 +292,8 @@ def load_bin(path, image_size):
             data_list[flip][i][:] = img
         if i % 1000 == 0:
             print('loading bin', i)
-    print(data_list[0].shape)  
+
+    print(data_list[0].shape) 
     return (data_list, issame_list)
 
 
@@ -707,7 +713,7 @@ if __name__ == '__main__':
         path = os.path.join(args.data_dir, name + ".bin")
         if os.path.exists(path):
             print('loading.. ', name)
-            data_set = load_bin(path, image_size)
+            data_set = load_bin(image_size)
             ver_list.append(data_set)
             ver_name_list.append(name)
 
