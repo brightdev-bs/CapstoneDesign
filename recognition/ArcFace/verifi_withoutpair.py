@@ -222,7 +222,7 @@ def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
 
     return tpr, fpr, accuracy, val, val_std, far
 
-
+bins = []
 def load_bin(image_size):
     #try:
     #    with open(path, 'rb') as f:
@@ -232,10 +232,10 @@ def load_bin(image_size):
     #        bins1, issame_list1 = pickle.load(f, encoding='bytes')  #py3
     
     ### 추가코드 #######################
+    print("----------")
     target_image = './data/tom/tom_0001.jpg' #웹 클라이언트에서 받을 이미지
     crawling_folder = './data/ema/' # 크롤링 저장소 경로
     
-    bins = []
     issame_list  = []
 
     #print("load folder : "+ str(os.listdir(crawling_folder)))
@@ -709,14 +709,10 @@ if __name__ == '__main__':
 
     ver_list = []
     ver_name_list = []
-    for name in args.target.split(','):
-        path = os.path.join(args.data_dir, name + ".bin")
-        if os.path.exists(path):
-            print('loading.. ', name)
-            data_set = load_bin(image_size)
-            ver_list.append(data_set)
-            ver_name_list.append(name)
-
+    ver_name_list.append('lfw')
+    data_set = load_bin(image_size)
+    ver_list.append(data_set)
+    
     if args.mode == 0:
         for i in range(len(ver_list)):
             results = []
