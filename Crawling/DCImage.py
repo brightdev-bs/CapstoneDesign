@@ -142,7 +142,9 @@ class _DCImage(utills.utillClass):
 
           count += 1
 
+      #connection: keep-alive 
       self.sender(pics_lists)
+
       print(key_name + " 카테고리의 모든 수집을 완료했습니다. 다음 카테고리로 넘어갑니다.")
       pics_lists.clear()
 

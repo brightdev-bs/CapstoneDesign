@@ -53,6 +53,9 @@ class _Video(utills.utillClass):
     yt=pytube.YouTube(url)
     
     #가장 화질 괜찮은것 받아옴
+
+    print("*"+url+"*")
+
     videos=yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
     
     #print("*******************************len"+str(len(videos)))
@@ -137,7 +140,8 @@ class _Video(utills.utillClass):
        if(count>4):
            break
        time.sleep(3)
-    
+
+    #connection: keep-alive 
     self.sender(pics_lists)
 
     #trim videos

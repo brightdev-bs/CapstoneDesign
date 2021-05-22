@@ -112,12 +112,32 @@ class utillClass(threading.Thread):
           continue
 
         temp_encoding = face_recognition.face_encodings(temp_face_location)
+        countofpics = 0
+
 
         if len(temp_encoding) == 0:
           self.saveFileErrorHandling(" delete. - no face", i_lists)
         else:
-            succ_lists.append(i_lists)
+            for (top, right, bottom, left) in face_recognition.face_locations(temp_face_location):
+                
+                face_img = temp_face_location[top:bottom, left:right]
+                
+                #opencv는 gif 취급안해서 삭제
+                #svimg = cv2.cvtColor(face_img, cv2.COLOR_BGR2RGB)
+                
+                pil_img = Image.fromarray(face_img)
+
+                head, ext = i_lists.savePath.split(".")[1:]
+                head = "./"+head + "_changed_" + str(countofpics)+ "." + ext
+                
+                pil_img.save(head)
+
+                #cv2.imwrite(head, svimg)
+                countofpics +=1
+                succ_lists.append(lists(head, i_lists.saveUrl))
+
             #self.sender(i_lists.saveUrl)
+            os.remove(i_lists.savePath)
       
       return succ_lists
       
@@ -127,6 +147,7 @@ class utillClass(threading.Thread):
 #이미지나 url의 값은 DB에서 중복되도 된다.
 #보낸 시간대를 primary key로 사용한다
 
+#connection: keep-alive 
   def sender(self, base_image_paths:lists):
     
    
