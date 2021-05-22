@@ -44,8 +44,7 @@ import mxnet as mx
 from mxnet import ndarray as nd
 from PIL import Image
 import matplotlib.pyplot as plt
-
-save_even = []
+import requests as req
 
 class LFold:
     def __init__(self, n_splits=2, shuffle=False):
@@ -102,32 +101,54 @@ def calculate_roc(thresholds,
             diff = np.subtract(embed1, embed2)
             dist = np.sum(np.square(diff), 1)
 
+        """
         # Find the best threshold for the fold
         acc_train = np.zeros((nrof_thresholds))
         for threshold_idx, threshold in enumerate(thresholds):
             _, _, acc_train[threshold_idx] = calculate_accuracy(
                 threshold, dist[train_set], actual_issame[train_set])
-
         best_threshold_index = np.argmax(acc_train)
-        print('threshold: {}'.format(thresholds[best_threshold_index]))
+
         for threshold_idx, threshold in enumerate(thresholds):
+
             tprs[fold_idx,
                  threshold_idx], fprs[fold_idx,
                                       threshold_idx], _ = calculate_accuracy(
                                           threshold, dist[test_set],
                                           actual_issame[test_set])
 
+        """
+        #밑에 thresholds값 변경해야함
         _, _, accuracy[fold_idx] = calculate_accuracy(
-            thresholds[best_threshold_index], dist[test_set],
+            thresholds[130], dist[test_set],
             actual_issame[test_set])
 
     tpr = np.mean(tprs, 0)
     fpr = np.mean(fprs, 0)
     return tpr, fpr, accuracy
 
+tr_idx = []
 def calculate_accuracy(threshold, dist, actual_issame):
+    #print("dist : {} threshold : {} ".format(dist, threshold))
     predict_issame = np.less(dist, threshold)
-    #print(predict_issame)
+    print(predict_issame)
+    for real_idx, real_val in enumerate(predict_issame):
+        if(real_val == False):
+            tr_idx.append(real_idx) 
+
+    hash = "ffffff"
+    precision = "87%"
+    for data in tr_idx:
+        files = {'face': bins[data]}
+        try:
+            result = req.post('http://localhost:5500/api/detection/result', files=files, data={'hash': hash, 'precision':precision})
+            print(result)
+        except Exception as E:
+            print("Encode 전송 에러")
+            print(E)
+            pass
+
+
     tp = np.sum(np.logical_and(predict_issame, actual_issame)) #true pair
     fp = np.sum(np.logical_and(predict_issame, np.logical_not(actual_issame)))
     tn = np.sum(
@@ -139,6 +160,7 @@ def calculate_accuracy(threshold, dist, actual_issame):
     fpr = 0 if (fp + tn == 0) else float(fp) / float(fp + tn)
     acc = float(tp + tn) / dist.size
     return tpr, fpr, acc
+
 
 def calculate_val(thresholds,
                   embeddings1,
@@ -212,6 +234,7 @@ def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
                                        np.asarray(actual_issame),
                                        nrof_folds=nrof_folds,
                                        pca=pca)
+    """
     thresholds = np.arange(0, 4, 0.001)
     val, val_std, far = calculate_val(thresholds,
                                       embeddings1,
@@ -219,8 +242,8 @@ def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
                                       np.asarray(actual_issame),
                                       1e-3,
                                       nrof_folds=nrof_folds)
-
-    return tpr, fpr, accuracy, val, val_std, far
+    """
+    return tpr, fpr, accuracy #, val, val_std, far
 
 bins = []
 def load_bin(image_size):
@@ -379,7 +402,7 @@ def test(data_set,
     embeddings = sklearn.preprocessing.normalize(embeddings)
     print(embeddings.shape)
     print('infer time', time_consumed)
-    _, _, accuracy, val, val_std, far = evaluate(embeddings,
+    _, _, accuracy = evaluate(embeddings,
                                                  issame_list,
                                                  nrof_folds=nfolds)
     acc2, std2 = np.mean(accuracy), np.std(accuracy)
