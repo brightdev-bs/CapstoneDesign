@@ -3,10 +3,10 @@ import requests as req
 files = {'face': open("testImage.png", 'rb')}
 hash = "ffffff"
 precision = "87%"
-doneDetection = ""
+ip = "0:0:0:0:0:0:0:1"
 
 try:
-    result = req.post('http://localhost:8080/api/detection/result', files=files, data={'hash': hash, 'precision':precision})
+    result = req.post('http://localhost:8080/api/detection/result', files=files, data={'hash': hash, 'precision':precision, 'ip':ip})
 
     
     # result = req.post('http://localhost:8080/api/detection/result', files=files, data={'hash': doneDetection, 'precision':doneDetection})

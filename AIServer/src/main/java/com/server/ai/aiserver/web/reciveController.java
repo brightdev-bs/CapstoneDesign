@@ -28,6 +28,8 @@ public class reciveController {
         aiService.localSave(image);
         aiService.run(clientIp);
 
+        System.out.println("매칭 완료.");
+
         return "/result";
 
     }
