@@ -67,12 +67,9 @@ def calculate_roc(thresholds,
     assert (embeddings1.shape[0] == embeddings2.shape[0])
     assert (embeddings1.shape[1] == embeddings2.shape[1])
     nrof_pairs = min(len(actual_issame), embeddings1.shape[0])
-    #print("nrof_pairs")
-    #print(nrof_pairs)        ----------------------------------> 10출력
     nrof_thresholds = len(thresholds)
     #print(nrof_thresholds)    ----------------------------------> 400출력
     k_fold = LFold(n_splits=nrof_folds, shuffle=False)
-
     tprs = np.zeros((nrof_folds, nrof_thresholds))
     fprs = np.zeros((nrof_folds, nrof_thresholds))
     accuracy = np.zeros((nrof_folds))
@@ -83,8 +80,6 @@ def calculate_roc(thresholds,
         dist = np.sum(np.square(diff), 1)
 
     for fold_idx, (train_set, test_set) in enumerate(k_fold.split(indices)):
-        #print('train_set', train_set)
-        #print('test_set', test_set)
         if pca > 0:
             print('doing pca on', fold_idx)
             embed1_train = embeddings1[train_set]
@@ -101,7 +96,7 @@ def calculate_roc(thresholds,
             diff = np.subtract(embed1, embed2)
             dist = np.sum(np.square(diff), 1)
 
-        """
+        '''
         # Find the best threshold for the fold
         acc_train = np.zeros((nrof_thresholds))
         for threshold_idx, threshold in enumerate(thresholds):
@@ -116,20 +111,20 @@ def calculate_roc(thresholds,
                                       threshold_idx], _ = calculate_accuracy(
                                           threshold, dist[test_set],
                                           actual_issame[test_set])
-
-        """
+        '''
         #밑에 thresholds값 변경해야함
         _, _, accuracy[fold_idx] = calculate_accuracy(
-            thresholds[130], dist[test_set],
+            thresholds[116], dist[test_set],
             actual_issame[test_set])
 
     tpr = np.mean(tprs, 0)
     fpr = np.mean(fprs, 0)
     return tpr, fpr, accuracy
 
-tr_idx = []
+
 def calculate_accuracy(threshold, dist, actual_issame):
-    #print("dist : {} threshold : {} ".format(dist, threshold))
+    print("dist : {} threshold : {} ".format(dist, threshold))
+    tr_idx = []
     predict_issame = np.less(dist, threshold)
     print(predict_issame)
     for real_idx, real_val in enumerate(predict_issame):
@@ -139,14 +134,13 @@ def calculate_accuracy(threshold, dist, actual_issame):
     hash = "ffffff"
     precision = "87%"
     for data in tr_idx:
-        files = {'face': bins[data]}
+        files = {'face': compare[data]}
         try:
-            result = req.post('http://localhost:5500/api/detection/result', files=files, data={'hash': hash, 'precision':precision})
+            result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/detection/result', files=files, data={'hash': hash, 'precision':precision})
             print(result)
         except Exception as E:
             print("Encode 전송 에러")
             print(E)
-            pass
 
 
     tp = np.sum(np.logical_and(predict_issame, actual_issame)) #true pair
@@ -206,21 +200,18 @@ def calculate_val(thresholds,
 
 def calculate_val_far(threshold, dist, actual_issame):
     predict_issame = np.less(dist, threshold)
-    #true_accept = np.sum(np.logical_and(predict_issame, actual_issame))
+    true_accept = np.sum(np.logical_and(predict_issame, actual_issame))
     false_accept = np.sum(
         np.logical_and(predict_issame, np.logical_not(actual_issame)))
-    #n_same = np.sum(actual_issame)
+    n_same = np.sum(actual_issame)
     n_diff = np.sum(np.logical_not(actual_issame))
-    #print(n_same)
-    #print(true_accept, false_accept)
-    #print(n_same, n_diff)
-    #if(n_same == 0): 
-    #    return 0, 0
+    if(n_same == 0): 
+        return 0, 0
     
-    #val = float(true_accept) / float(n_same)
+    val = float(true_accept) / float(n_same)
     far = float(false_accept) / float(n_diff)
-    #print("far %s" % (far))
-    return 0, far   # var -> 0으로 수정함
+    print("far %s" % (far))
+    return var, far   # var -> 0으로 수정함
 
 
 def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
@@ -234,7 +225,7 @@ def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
                                        np.asarray(actual_issame),
                                        nrof_folds=nrof_folds,
                                        pca=pca)
-    """
+    '''
     thresholds = np.arange(0, 4, 0.001)
     val, val_std, far = calculate_val(thresholds,
                                       embeddings1,
@@ -242,10 +233,11 @@ def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
                                       np.asarray(actual_issame),
                                       1e-3,
                                       nrof_folds=nrof_folds)
-    """
+    '''
     return tpr, fpr, accuracy #, val, val_std, far
 
 bins = []
+compare = []
 def load_bin(image_size):
     #try:
     #    with open(path, 'rb') as f:
@@ -293,9 +285,13 @@ def load_bin(image_size):
 
         bins.append(target_image)
         with open(path, 'rb') as fp:
-            bins.append(fp.read())
-
+            data = fp.read()
+            bins.append(data)
+            compare.append(data)
+            
         issame_list.append(False)    
+    
+    print(issame_list)
 
     ### 추가코드 #######################
     data_list = []
@@ -403,8 +399,8 @@ def test(data_set,
     print(embeddings.shape)
     print('infer time', time_consumed)
     _, _, accuracy = evaluate(embeddings,
-                                                 issame_list,
-                                                 nrof_folds=nfolds)
+                            issame_list,
+                            nrof_folds=nfolds)
     acc2, std2 = np.mean(accuracy), np.std(accuracy)
     return acc1, std1, acc2, std2, _xnorm, embeddings_list # far = acc2였음
 
@@ -735,6 +731,7 @@ if __name__ == '__main__':
     ver_name_list.append('lfw')
     data_set = load_bin(image_size)
     ver_list.append(data_set)
+
     
     if args.mode == 0:
         for i in range(len(ver_list)):
