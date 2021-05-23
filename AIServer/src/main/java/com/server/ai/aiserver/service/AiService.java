@@ -26,7 +26,7 @@ public class AiService {
 
     }
 
-    public void run(){
+    public void run(String clientIp){
         System.out.println("얼굴 매칭....");
 
         //cmd
