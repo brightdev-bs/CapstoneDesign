@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 
 public class AiService {
     public void localSave(MultipartFile image) throws IOException {
-        String filePath="C:/arcface 경로";
+        String filePath="C:/arcface 사용자 이미지 경로";
         String fileName = image.getOriginalFilename();
         long fileSize = (long)image.getBytes().length;
 
@@ -26,28 +26,33 @@ public class AiService {
 
     }
 
-    public void run(){
+    public void run(String clientIp){
         System.out.println("얼굴 매칭....");
 
         //cmd
         try{
-//            cmd("bin 생성 && 얼굴 인식");
-            cmd("cd C:\\Users\\admin\\Desktop && mkdir test");
+            //windows
+            cmd("python \\Desktop\\Capstone\\test\\test.py");
+            //linux 기반
+            cmd("python ~/Desktop/Capstone/test/test.py");
 
         }catch(Throwable t){
             t.printStackTrace();
         }
 
         System.out.println("결과 전송 완료.");
-        System.out.println("종료.");
 
 
     }
     public void cmd(String command) throws IOException {
         String cmd[] = new String[3];
+        //windows
         cmd[0] ="cmd.exe";
-        // 명령어 모두 실해 후 종료 옵션.
         cmd[1] = "/C";
+        //linux 기반
+        cmd[0] = "/bin/sh";
+        cmd[1] = "-c";
+        // 명령어 모두 실해 후 종료 옵션.
         cmd[2] = command;
 
         Runtime runtime = Runtime.getRuntime();
@@ -62,8 +67,4 @@ public class AiService {
             System.out.println(line);
     }
 
-    public static void main(String[] args) {
-        AiService aiService = new AiService();
-        aiService.run();
-    }
 }
