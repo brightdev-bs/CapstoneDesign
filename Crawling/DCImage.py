@@ -44,11 +44,11 @@ class _DCImage(utills.utillClass):
     return category_url
 
 #게시판 페이지 하나 긁어오는 함수
-  def set_Category(self, keyUrl):
+  def set_Category(self, page, keyUrl):
     url = keyUrl
     myurl , myid = url.split('?id=')
 
-    res = req.get(myurl , params={'id': myid, 'page': 1}, headers = {'User-Agent' : self.user_Agent})    
+    res = req.get(myurl , params={'id': myid, 'page': page}, headers = {'User-Agent' : self.user_Agent})    
     soup = bs(res.content, 'lxml')
 
     return soup
@@ -118,35 +118,37 @@ class _DCImage(utills.utillClass):
 
     category_list = self.get_Categories()
     count = 0
-    for key_name in category_list.keys():      
-      category_page = self.set_Category(category_list.get(key_name))
-      url_list = self.get_UrlList(category_page)
+    for page in range(0,10):
+        
+        for key_name in category_list.keys():      
+            category_page = self.set_Category(page, category_list.get(key_name))
+            url_list = self.get_UrlList(category_page)
 
-      pics_lists = []
+            pics_lists = []
 
 
-      for url in url_list:
+            for url in url_list:
           # vf.extract_keyframes(url, method='iframes', output_dir_keyframes='./img')
           
-          view = url
-          time.sleep(3)
-          try:
-            saveInformation = self.get_Image(view)
-            pics_lists.extend(self.get_faceKeyFrame(saveInformation))
+              view = url
+              time.sleep(3)
+              try:
+                saveInformation = self.get_Image(view)
+                pics_lists.extend(self.get_faceKeyFrame(saveInformation))
 
-          except AttributeError as E:
-            #get_image에서 soup가 null(cotent가 null)일때 일어나는 Exception
-            print(E)
+              except AttributeError as E:
+              #get_image에서 soup가 null(cotent가 null)일때 일어나는 Exception
+                print(E)
             
-            continue
+              continue
 
-          count += 1
+              count += 1
 
-      #connection: keep-alive 
-      self.sender(pics_lists)
+              #connection: keep-alive 
+              self.sender(pics_lists)
 
-      print(key_name + " 카테고리의 모든 수집을 완료했습니다. 다음 카테고리로 넘어갑니다.")
-      pics_lists.clear()
+              print(key_name + " 카테고리의 모든 수집을 완료했습니다. 다음 카테고리로 넘어갑니다.")
+              pics_lists.clear()
 
 if __name__ == '__main__':
     _DCImage().run()
