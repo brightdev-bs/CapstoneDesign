@@ -83,7 +83,8 @@ class utillClass(threading.Thread):
   def get_faceKeyFrame(self, saveInformation:lists):
     
       succ_lists = []
-    
+      time.sleep(2)
+      
       print("이미지 수집 완료. 이미지 분류를 시작합니다.")
       
       for i_lists in saveInformation:
@@ -179,8 +180,8 @@ class utillClass(threading.Thread):
           print(file_url)
           print(file_hash)
 
-          #result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface', json ={"url": file_url, "hash": file_hash})
-          #print(result)
+          result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface', json ={"url": file_url, "hash": file_hash})
+          print(result)
 
         except Exception as E:
           print("Encode 전송 에러")
