@@ -83,7 +83,6 @@ class utillClass(threading.Thread):
   def get_faceKeyFrame(self, saveInformation:lists):
     
       succ_lists = []
-      time.sleep(2)
       
       print("이미지 수집 완료. 이미지 분류를 시작합니다.")
       
@@ -154,7 +153,6 @@ class utillClass(threading.Thread):
    
     if len(base_image_paths) != 0:
       print("이미지 분류 완료. 이미지 등록을 시작합니다.")
-      time.sleep(2)
       
       now = datetime.datetime.now()
       count =0

@@ -73,7 +73,7 @@ class _DCImage(utills.utillClass):
     now = datetime.datetime.now()
     count = 0
 
-
+   
     image_response =  req.get(view, headers={'User-Agent' : self.user_Agent})
     
     print(image_response.url)
@@ -86,6 +86,9 @@ class _DCImage(utills.utillClass):
     images =[]
     
     for li in image_downloader:
+        
+        time.sleep(1)
+        
         img_tag = li.find('a', href=True)
         img_url = img_tag['href']
         
@@ -123,6 +126,7 @@ class _DCImage(utills.utillClass):
         url_list = []
         for key_name in category_list.keys():    
             try:
+                time.sleep(2)
                 category_page = self.set_Category(page, category_list.get(key_name))
                 url_list = self.get_UrlList(category_page)
             except:
@@ -134,9 +138,11 @@ class _DCImage(utills.utillClass):
           # vf.extract_keyframes(url, method='iframes', output_dir_keyframes='./img')
           
               view = url
-              time.sleep(3)
+              
               try:
+                time.sleep(2) 
                 saveInformation = self.get_Image(view)
+                
                 pics_lists.extend(self.get_faceKeyFrame(saveInformation))
 
               except AttributeError as E:
@@ -144,7 +150,14 @@ class _DCImage(utills.utillClass):
                 print(E)
             
                 continue
-
+              
+              #request 관련 error
+              except Exception as E:
+                  print(E)
+                  print("EXCEPTION")
+                  
+                  time.sleep(30)
+                  continue
               count += 1
 
               #connection: keep-alive 
