@@ -85,7 +85,7 @@ class utillClass(threading.Thread):
       succ_lists = []
     
       print("이미지 수집 완료. 이미지 분류를 시작합니다.")
-      time.sleep(2)
+      
       for i_lists in saveInformation:
 
         base_image_path = i_lists.savePath
@@ -107,9 +107,9 @@ class utillClass(threading.Thread):
           continue
 
         #너무 큰 사진(카드 뉴스 등) 제거 
-        if(w>=4900 or h>=4900):
-          self.saveFileErrorHandling(" delete. - size too big", i_lists)
-          continue
+        #if(w>=4900 or h>=4900):
+        # self.saveFileErrorHandling(" delete. - size too big", i_lists)
+        # continue
 
         temp_encoding = face_recognition.face_encodings(temp_face_location)
         countofpics = 0
@@ -164,13 +164,10 @@ class utillClass(threading.Thread):
         
         count+=1
 
-        file_ext = ("."+base_image_path.savePath.split('.')[-1]).strip()
+        #file_ext = ("."+base_image_path.savePath.split('.')[-1]).strip()
+        #print(file_ext)
 
-        
-
-        print(file_ext)
-
-        file_id = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) +"_"+str(count) + file_ext
+        #file_id = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) +"_"+str(count) + file_ext
 
         file_hash = str(base_image_path.getHash())
 
@@ -178,19 +175,19 @@ class utillClass(threading.Thread):
         
         try:
 
-          print(file_id)
+          #print(file_id)
           print(file_url)
           print(file_hash)
 
-          # result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface', json ={"url": file_url, "hash": file_hash})
-          # print(result)
+          #result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/saveface', json ={"url": file_url, "hash": file_hash})
+          #print(result)
 
         except Exception as E:
           print("Encode 전송 에러")
           print(E)
           self.saveFileErrorHandling("Encode 전송 에러", base_image_path)
           pass
-        shutil.move(base_image_path.savePath, args.DBfileDir+file_hash+file_ext)
+        shutil.move(base_image_path.savePath, args.DBfileDir+file_hash+".jpg")
       print("이미지 전송 완료.")
       
     else:

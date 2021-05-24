@@ -115,17 +115,20 @@ class _DCImage(utills.utillClass):
     print("국내 커뮤니티 사이트 URL : "+self.BASE_PARSER_URL)
     print("DC Crawler run")
 
-
     category_list = self.get_Categories()
-    count = 0
-    for page in range(0,10):
-        
-        for key_name in category_list.keys():      
-            category_page = self.set_Category(page, category_list.get(key_name))
-            url_list = self.get_UrlList(category_page)
-
+    
+    for page in range(0,30):
+        count = 0
+        print("*"+str(page)+"*")
+        url_list = []
+        for key_name in category_list.keys():    
+            try:
+                category_page = self.set_Category(page, category_list.get(key_name))
+                url_list = self.get_UrlList(category_page)
+            except:
+                continue
+            
             pics_lists = []
-
 
             for url in url_list:
           # vf.extract_keyframes(url, method='iframes', output_dir_keyframes='./img')
@@ -140,15 +143,15 @@ class _DCImage(utills.utillClass):
               #get_image에서 soup가 null(cotent가 null)일때 일어나는 Exception
                 print(E)
             
-              continue
+                continue
 
               count += 1
 
               #connection: keep-alive 
-              self.sender(pics_lists)
+            self.sender(pics_lists)
 
-              print(key_name + " 카테고리의 모든 수집을 완료했습니다. 다음 카테고리로 넘어갑니다.")
-              pics_lists.clear()
+            print(key_name + " 카테고리의 모든 수집을 완료했습니다. 다음 카테고리로 넘어갑니다.")
+            pics_lists.clear()
 
 if __name__ == '__main__':
     _DCImage().run()
