@@ -1,18 +1,23 @@
 import requests as req
+import argparse
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('--sessionId', type=str)
+args = parser.parse_args()
 
 files = {'face': open("testImage.png", 'rb')}
-hash = "ffffff"
+hash = "ffe7e4fcdc824020"
 precision = "87%"
-ip = "0:0:0:0:0:0:0:1"
+header = {'cookie': 'JSESSIONID='+args.sessionId}
 
 try:
-    result = req.post('http://localhost:8080/api/detection/result', files=files, data={'hash': hash, 'precision':precision, 'ip':ip})
+    result = req.post('http://localhost:8080/api/detection/result', files=files, data={'hash': hash, 'precision':precision}, headers =header)
+    files = {'face': open("testImage.png", 'rb')}
+    result = req.post('http://localhost:8080/api/detection/result', files=files, data={'hash': hash, 'precision':precision}, headers =header)
+    files = {'face': open("testImage.png", 'rb')}
+    result = req.post('http://localhost:8080/api/detection/result', files=files, data={'hash': hash, 'precision':precision}, headers =header)
 
-    
-    # result = req.post('http://localhost:8080/api/detection/result', files=files, data={'hash': doneDetection, 'precision':doneDetection})
-
-    # result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/detectuin/result',
-    #                   data={"fileName": fileName, "url": pageUrl})
     print(result)
 except Exception as E:
     print("Encode 전송 에러")
