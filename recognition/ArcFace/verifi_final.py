@@ -45,6 +45,7 @@ from mxnet import ndarray as nd
 from PIL import Image
 import matplotlib.pyplot as plt
 import requests as req
+import time
 
 class LFold:
     def __init__(self, n_splits=2, shuffle=False):
@@ -139,16 +140,22 @@ def calculate_accuracy(threshold, dist, actual_issame):
     
     for real_idx, real_val in enumerate(predict_issame):
         if(real_val == False):
-            tr_idx.append(real_idx) 
+            tr_idx.append(real_idx)
 
     hash = "ffffff"
     precision = "87%"
+    header = {'cookie': 'JSESSIONID=' + args.sessionid}
+
     for data in tr_idx:
         files = {'face': compare[data]}
         try:
-            #result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/detection/result', files=files, data={'hash': hash, 'precision':precision})
-            #print(result)
-            pass
+            # local test
+            result = req.post('http://localhost:8080/api/detection/result', files=files,
+                              data={'hash': hash, 'precision': precision}, headers=header)
+
+            # aws server
+            # result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/detection/result', files=files, data={'hash': hash, 'precision': precision}, headers=header)
+            print(result)
         except Exception as E:
             print("Encode 전송 에러")
             print(E)
@@ -263,7 +270,7 @@ def load_bin(image_size):
     ### 추가코드 #######################
     print("----------")
     target_image = './data/tom/tom_0001.jpg' #웹 클라이언트에서 받을 이미지
-    crawling_folder = './data/ema/' # 크롤링 저장소 경로
+    crawling_folder = './data/crawling/' # 크롤링 저장소 경로
     
     issame_list  = []
 
@@ -291,7 +298,7 @@ def load_bin(image_size):
             bins.append(data)
             compare.append(data)
             namePath.append(path)
-        issame_list.append(False)    
+        issame_list.append(False)
     
     print(issame_list)
 
@@ -303,6 +310,7 @@ def load_bin(image_size):
         data_list.append(data)
     for i in range(len(issame_list) * 2):
         _bin = bins[i]
+        print(namePath[i])
         img = mx.image.imdecode(_bin)
         if img.shape[1] != image_size[0] or img.shape[0] != image_size[1]:
             img = mx.image.imresize(img, image_size[0], image_size[1])
@@ -670,7 +678,7 @@ if __name__ == '__main__':
     # general
     parser.add_argument('--data-dir', default='data', help='')
     parser.add_argument('--model',
-                        default='../model/model-r100-ii/model,0',
+                        default='./models/model/model,436',
                         help='path to load model.')
     parser.add_argument('--target',
                         default='lfw,cfp_ff,cfp_fp,agedb_30',
@@ -680,6 +688,8 @@ if __name__ == '__main__':
     parser.add_argument('--max', default='', type=str, help='')
     parser.add_argument('--mode', default=0, type=int, help='')
     parser.add_argument('--nfolds', default=10, type=int, help='')
+    parser.add_argument('--sessionid', type=str)
+    parser.add_argument('--filename', type=str)
     args = parser.parse_args()
     #sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'common'))
     #import face_image

@@ -34,7 +34,7 @@ public class AiService {
             //windows
             cmd("python \\Desktop\\Capstone\\test\\test.py");
             //linux 기반
-            cmd("python ~/Desktop/Capstone/test/test.py --sessionId "+sessionId);
+            cmd("python ~/Desktop/Capstone/test/test.py --sessionid "+sessionId);
 
         }catch(Throwable t){
             t.printStackTrace();
