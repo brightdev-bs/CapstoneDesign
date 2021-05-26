@@ -124,29 +124,31 @@ def calculate_roc(thresholds,
 
 
 def calculate_accuracy(threshold, dist, actual_issame):
-    print("dist : {} threshold : {} ".format(dist, threshold))
+    # print("dist : {} threshold : {} ".format(dist, threshold))
     tr_idx = []
     predict_issame = np.less(dist, threshold)
     
-    print("*********** cal_acc")
-    
-    print(predict_issame)
+    # print("*********** cal_acc")
+    # print(predict_issame)
     
     
     
     for i in range(0, len(predict_issame)):
         if predict_issame[i] == True:
             print(namePath[i])
-    
     for real_idx, real_val in enumerate(predict_issame):
-        if(real_val == False):
+        if(real_val == True):
             tr_idx.append(real_idx)
 
-    hash = "ffffff"
+
+
     precision = "87%"
     header = {'cookie': 'JSESSIONID=' + args.sessionid}
 
     for data in tr_idx:
+        hash = namePath[data].split(".")[1].split("/")[-1]
+
+
         files = {'face': compare[data]}
         try:
             # local test
@@ -269,7 +271,7 @@ def load_bin(image_size):
     
     ### 추가코드 #######################
     print("----------")
-    target_image = './data/tom/tom_0001.jpg' #웹 클라이언트에서 받을 이미지
+    target_image = './data/target/'+args.filename #웹 클라이언트에서 받을 이미지
     crawling_folder = './data/crawling/' # 크롤링 저장소 경로
     
     issame_list  = []
@@ -287,7 +289,7 @@ def load_bin(image_size):
             print(E)
             continue  
 
-        
+
         with open(path, 'rb') as fp:
             if(path.split(".")[-1] == "gif"): #gif 인식 불가
                 print(path.split(".")[-1])
@@ -298,9 +300,9 @@ def load_bin(image_size):
             bins.append(data)
             compare.append(data)
             namePath.append(path)
+
         issame_list.append(False)
     
-    print(issame_list)
 
     ### 추가코드 #######################
     data_list = []
@@ -310,7 +312,6 @@ def load_bin(image_size):
         data_list.append(data)
     for i in range(len(issame_list) * 2):
         _bin = bins[i]
-        print(namePath[i])
         img = mx.image.imdecode(_bin)
         if img.shape[1] != image_size[0] or img.shape[0] != image_size[1]:
             img = mx.image.imresize(img, image_size[0], image_size[1])
@@ -673,6 +674,8 @@ def dumpR(data_set,
 
 
 if __name__ == '__main__':
+    testf = open("./asd.txt", "a")
+    testf.write("asdaadsfasdfasdf")
 
     parser = argparse.ArgumentParser(description='do verification')
     # general
