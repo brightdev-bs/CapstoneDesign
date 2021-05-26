@@ -3,13 +3,13 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--sessionId', type=str)
+parser.add_argument('--sessionid', type=str)
 args = parser.parse_args()
 
 files = {'face': open("testImage.png", 'rb')}
 hash = "ffe7e4fcdc824020"
 precision = "87%"
-header = {'cookie': 'JSESSIONID='+args.sessionId}
+header = {'cookie': 'JSESSIONID='+args.sessionid}
 
 try:
     result = req.post('http://localhost:8080/api/detection/result', files=files, data={'hash': hash, 'precision':precision}, headers =header)
