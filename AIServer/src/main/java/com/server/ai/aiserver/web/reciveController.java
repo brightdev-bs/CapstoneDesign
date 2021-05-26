@@ -11,6 +11,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 
@@ -21,12 +22,11 @@ public class reciveController {
     private final AiService aiService;
     
     @PostMapping("/api/detection/input")
-    public @ResponseBody String saveAndExcute(@RequestParam("image")MultipartFile image) throws IOException {
-        HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        String clientIp = req.getRemoteAddr();
+    public @ResponseBody String saveAndExcute(@RequestParam("image")MultipartFile image, HttpSession session) throws IOException {
+        String sessionId = session.getId();
 
         aiService.localSave(image);
-        aiService.run(clientIp);
+        aiService.run(sessionId);
 
         System.out.println("매칭 완료.");
 

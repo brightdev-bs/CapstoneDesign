@@ -133,10 +133,16 @@ def calculate_accuracy(threshold, dist, actual_issame):
 
     hash = "ffffff"
     precision = "87%"
+    header = {'cookie': 'JSESSIONID=' + args.sessionid}
+
     for data in tr_idx:
         files = {'face': compare[data]}
         try:
-            result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/detection/result', files=files, data={'hash': hash, 'precision':precision})
+            #local test
+            result = req.post('http://localhost:8080/api/detection/result', files=files,data={'hash': hash, 'precision': precision}, headers=header)
+
+            #aws server
+            # result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/detection/result', files=files, data={'hash': hash, 'precision': precision}, headers=header)
             print(result)
         except Exception as E:
             print("Encode 전송 에러")
@@ -678,6 +684,8 @@ if __name__ == '__main__':
     parser.add_argument('--max', default='', type=str, help='')
     parser.add_argument('--mode', default=0, type=int, help='')
     parser.add_argument('--nfolds', default=10, type=int, help='')
+    parser.add_argument('--sessionid', type=str)
+    parser.add_argument('--filename', type=str)
     args = parser.parse_args()
     #sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'common'))
     #import face_image

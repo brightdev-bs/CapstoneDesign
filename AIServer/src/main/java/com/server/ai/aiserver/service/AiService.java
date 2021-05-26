@@ -26,7 +26,7 @@ public class AiService {
 
     }
 
-    public void run(String clientIp){
+    public void run(String sessionId){
         System.out.println("얼굴 매칭....");
 
         //cmd
@@ -34,7 +34,7 @@ public class AiService {
             //windows
             cmd("python \\Desktop\\Capstone\\test\\test.py");
             //linux 기반
-            cmd("python ~/Desktop/Capstone/test/test.py");
+            cmd("python ~/Desktop/Capstone/test/test.py --sessionid "+sessionId);
 
         }catch(Throwable t){
             t.printStackTrace();
