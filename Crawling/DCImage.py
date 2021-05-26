@@ -38,9 +38,19 @@ class _DCImage(utills.utillClass):
     categories = soup.select('#categ_listwrap > div:nth-child(1) > div > div ul li a')
   
     category_url = {}
+    
     for category in categories:
+        
+      #print(category.text)
+      
+      #도배 게시
+      if(category.text =="이승윤 유튜브" or category.text =="이승윤(가수)"):
+          print("pass"+category.text)
+          continue
+        
       category_url[category.text] =category.get('href')
     
+    #print(category_url)    
     return category_url
 
 #게시판 페이지 하나 긁어오는 함수
@@ -120,51 +130,61 @@ class _DCImage(utills.utillClass):
 
     category_list = self.get_Categories()
     
-    for page in range(0,30):
-        count = 0
-        print("*"+str(page)+"*")
+    
+    
+    for key_name in category_list.keys():  
         url_list = []
-        for key_name in category_list.keys():    
+        
+        #1~25 page
+        for page in range(1,25):
+            count = 0
+            print("*"+str(page)+"*")
             try:
-                time.sleep(2)
+                #time.sleep(2)
                 category_page = self.set_Category(page, category_list.get(key_name))
-                url_list = self.get_UrlList(category_page)
-            except:
+                url_list += self.get_UrlList(category_page)
+                
+            except Exception as E:
+                print(E)
                 continue
             
-            pics_lists = []
-
-            for url in url_list:
+        pics_lists = []
+        
+        for url in url_list:
           # vf.extract_keyframes(url, method='iframes', output_dir_keyframes='./img')
           
-              view = url
+            view = url
               
-              try:
+            try:
                 time.sleep(2) 
                 saveInformation = self.get_Image(view)
-                
                 pics_lists.extend(self.get_faceKeyFrame(saveInformation))
 
-              except AttributeError as E:
+            except AttributeError as E:
               #get_image에서 soup가 null(cotent가 null)일때 일어나는 Exception
                 print(E)
-            
                 continue
               
-              #request 관련 error
-              except Exception as E:
-                  print(E)
-                  print("EXCEPTION")
+              #request 관련 error (게시판이 삭제될경우 많이 일어남)
+            except Exception as E:
+                print(E)
+                print("EXCEPTION")
                   
-                  time.sleep(30)
-                  continue
-              count += 1
+                time.sleep(10)
+                continue
+       
+            count += 1
+            #이미지 20개 단위로 전송
+            if(len(pics_lists)>=20):
+                self.sender(pics_lists)
+                pics_lists.clear()
+                
+        #connection: keep-alive 
 
-              #connection: keep-alive 
-            self.sender(pics_lists)
-
-            print(key_name + " 카테고리의 모든 수집을 완료했습니다. 다음 카테고리로 넘어갑니다.")
-            pics_lists.clear()
+        self.sender(pics_lists)
+        print(key_name + " 카테고리의 모든 수집을 완료했습니다. 다음 카테고리로 넘어갑니다.")
+        pics_lists.clear()
+        url_list.clear()
 
 if __name__ == '__main__':
     _DCImage().run()

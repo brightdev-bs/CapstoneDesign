@@ -13,7 +13,8 @@ import sys
 import shutil
 from PIL import Image
 import imagehash
-
+import numpy as np
+import cv2
 from argparser import args
 
 '''
@@ -186,13 +187,37 @@ class utillClass(threading.Thread):
           print(E)
           self.saveFileErrorHandling("Encode 전송 에러", base_image_path)
           pass
-        shutil.move(base_image_path.savePath, args.DBfileDir+file_hash+".jpg")
+        
+        self.movefunc(base_image_path.savePath, file_hash)
+        
       print("이미지 전송 완료.")
       
     else:
       print("Get Face Dection PASS")
       pass
+  
 
+  
+  #전송 func
+  def movefunc(self, fromPath, file_hash):
+      
+      im = Image.open(fromPath)
+      im = im.convert("RGB")
+      
+      saveUrl = args.DBfileDir+file_hash+".jpg"
+      im.save(saveUrl)
+      
+      checking = cv2.imread(saveUrl)
+      #print(type(checking))
+      
+      os.remove(fromPath)
+      if(type(checking) is not np.ndarray):
+          print("noneType")
+          assert(False)
+          #assert(True)
+      
+  
+    
   #dummy function
   def moveAndDelete(self, toPath:str, fromPath:str, currentTimeDir:str="", folderName:str='frames_', ext:str='jpg'):
     count=0
