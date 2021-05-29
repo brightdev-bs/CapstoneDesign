@@ -1,17 +1,21 @@
 package com.server.ai.aiserver.service;
 
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+@Service
 public class AiService {
-    public void localSave(MultipartFile image) throws IOException {
-        String filePath="C:/arcface 사용자 이미지 경로";
-        String fileName = image.getOriginalFilename();
+    public void localSave(MultipartFile image, String sessionId) throws IOException {
+        String filePath = "C:\\Users\\admin\\Desktop\\Capston\\recognition\\ArcFace\\data\\target\\";
+
         long fileSize = (long)image.getBytes().length;
+        String fileName = sessionId+"_"+image.getOriginalFilename();
 
         System.out.println("파일 이름 : "+fileName);
         System.out.println("파일 크기 : "+fileSize);
@@ -26,15 +30,15 @@ public class AiService {
 
     }
 
-    public void run(String sessionId){
+    public void run(String sessionId, String fileName){
         System.out.println("얼굴 매칭....");
 
         //cmd
         try{
             //windows
-            cmd("python \\Desktop\\Capstone\\test\\test.py");
+            cmd("cd C:\\Users\\admin\\Desktop\\Capston\\recognition\\ArcFace && python verifi_final.py --data-dir data --nfolds 1 --sessionid "+sessionId+" --filename "+fileName);
             //linux 기반
-            cmd("python ~/Desktop/Capstone/test/test.py --sessionid "+sessionId);
+//            cmd("python ~/Desktop/Capstone/test/test.py --sessionid "+sessionId);
 
         }catch(Throwable t){
             t.printStackTrace();
@@ -44,19 +48,26 @@ public class AiService {
 
 
     }
-    public void cmd(String command) throws IOException {
+    public void cmd(String command) throws IOException, InterruptedException {
         String cmd[] = new String[3];
         //windows
         cmd[0] ="cmd.exe";
         cmd[1] = "/C";
         //linux 기반
-        cmd[0] = "/bin/sh";
-        cmd[1] = "-c";
-        // 명령어 모두 실해 후 종료 옵션.
+//        cmd[0] = "/bin/sh";
+//        cmd[1] = "-c";
         cmd[2] = command;
 
         Runtime runtime = Runtime.getRuntime();
         Process process = runtime.exec(cmd);
+
+        process.waitFor();
+
+        if (process.exitValue() == 0) {
+            System.out.println("성공");
+        } else {
+            System.out.println("비정상 종료");
+        }
 
 
         BufferedReader br = new BufferedReader(
