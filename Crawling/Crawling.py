@@ -2,6 +2,8 @@ import requests as rq
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 
+#크롤링 연습
+
 #---------url에서 요청 받아오기.--------------
 url = "https://search.naver.com/search.naver?sm=tab_hty.top&where=nexearch&query=%ED%81%AC%EB%A1%A4%EB%A7%81&oquery=test&tqi=hbtHPdp0J14ssOZUNACssssstId-189547"
 res = rq.get(url)

@@ -1,8 +1,9 @@
 import argparse
 
 
-parser = argparse.ArgumentParser(description='Process crawler.')
+#argparse로 매개변수 받는 코드
 
+parser = argparse.ArgumentParser(description='Process crawler.')
 
 parser.add_argument('-saveDir', type=str, default='./imgs/image/',
                     help='save location of pic')

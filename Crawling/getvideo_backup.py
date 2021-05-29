@@ -14,6 +14,8 @@ import videokf as vf
 import face_recognition
 import glob
 
+#backup file
+
 class _Video(threading.Thread):
   def __init__(self, loop_time = 1.0/60):
     print("Start")
