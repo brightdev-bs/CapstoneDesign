@@ -115,7 +115,7 @@ def calculate_roc(thresholds,
         '''
         #밑에 thresholds값 변경해야함
         _, _, accuracy[fold_idx] = calculate_accuracy(
-            thresholds[116], dist[test_set],
+            thresholds[100], dist[test_set],
             actual_issame[test_set])
 
     tpr = np.mean(tprs, 0)
@@ -135,7 +135,8 @@ def calculate_accuracy(threshold, dist, actual_issame):
     
     for i in range(0, len(predict_issame)):
         if predict_issame[i] == True:
-            print(namePath[i])
+            # print(namePath[i])
+            print(dist[i])
     for real_idx, real_val in enumerate(predict_issame):
         if(real_val == True):
             tr_idx.append(real_idx)
@@ -152,11 +153,10 @@ def calculate_accuracy(threshold, dist, actual_issame):
         files = {'face': compare[data]}
         try:
             # local test
-            result = req.post('http://localhost:8080/api/detection/result', files=files,
-                              data={'hash': hash, 'precision': precision}, headers=header)
+            # result = req.post('http://localhost:8080/api/detection/result', files=files,     data={'hash': hash, 'precision': precision}, headers=header)
 
             # aws server
-            # result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/detection/result', files=files, data={'hash': hash, 'precision': precision}, headers=header)
+            result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/detection/result', files=files, data={'hash': hash, 'precision': precision}, headers=header)
             print(result)
         except Exception as E:
             print("Encode 전송 에러")
@@ -687,7 +687,7 @@ if __name__ == '__main__':
                         default='lfw,cfp_ff,cfp_fp,agedb_30',
                         help='test targets.')
     parser.add_argument('--gpu', default=0, type=int, help='gpu id')
-    parser.add_argument('--batch-size', default=1, type=int, help='')
+    parser.add_argument('--batch-size', default=20, type=int, help='')
     parser.add_argument('--max', default='', type=str, help='')
     parser.add_argument('--mode', default=0, type=int, help='')
     parser.add_argument('--nfolds', default=10, type=int, help='')

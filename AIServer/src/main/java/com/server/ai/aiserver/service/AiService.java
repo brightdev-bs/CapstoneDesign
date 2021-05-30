@@ -12,13 +12,15 @@ import java.io.InputStreamReader;
 @Service
 public class AiService {
     public void localSave(MultipartFile image, String sessionId) throws IOException {
-        String filePath = "C:\\Users\\admin\\Desktop\\Capston\\recognition\\ArcFace\\data\\target\\";
+        String filePath = "C:\\Users\\admin\\Desktop\\CapstoneDesign\\recognition\\ArcFace\\data\\target\\";
 
         long fileSize = (long)image.getBytes().length;
         String fileName = sessionId+"_"+image.getOriginalFilename();
 
         System.out.println("파일 이름 : "+fileName);
         System.out.println("파일 크기 : "+fileSize);
+        if(fileName.getBytes().length>0){
+        }
 
         try{
             image.transferTo(new File(filePath + fileName));
@@ -36,7 +38,7 @@ public class AiService {
         //cmd
         try{
             //windows
-            cmd("cd C:\\Users\\admin\\Desktop\\Capston\\recognition\\ArcFace && python verifi_final.py --data-dir data --nfolds 1 --sessionid "+sessionId+" --filename "+fileName);
+            cmd("cd C:\\Users\\admin\\Desktop\\CapstoneDesign\\recognition\\ArcFace && python verifi_final.py --data-dir data --nfolds 1 --sessionid "+sessionId+" --filename "+fileName);
             //linux 기반
 //            cmd("python ~/Desktop/Capstone/test/test.py --sessionid "+sessionId);
 
