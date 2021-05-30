@@ -46,6 +46,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import requests as req
 import time
+import face_recognition
 
 class LFold:
     def __init__(self, n_splits=2, shuffle=False):
@@ -278,9 +279,32 @@ def load_bin(image_size):
 
     #print("load folder : "+ str(os.listdir(crawling_folder)))
     
-    with open(target_image, 'rb') as fp:
-        target_image = fp.read()
+    loading_img = cv2.imread(target_image)
     
+    temp_face_location = face_recognition.load_image_file(loading_img)
+    temp_encoding = face_recognition.face_encodings(temp_face_location)
+    
+    cnt = len(temp_encoding)
+    if cnt == 0:
+        with open(target_image, 'rb') as fp:
+            target_image = fp.read()
+    elif cnt == 1:
+        for (top, right, bottom, left) in face_recognition.face_locations(temp_face_location):
+                face_img = temp_face_location[top:bottom, left:right]  
+                
+                pil_img = Image.fromarray(face_img)
+
+                head, ext = target_image.split(".")[1:]
+                head = "./"+head + "_changed" + "." + ext
+                
+                pil_img.save(head)
+                with open(head, 'rb') as fp:
+                    target_image = fp.read()
+    else:
+        with open(target_image, 'rb') as fp:
+            target_image = fp.read()
+        
+        
     for i in os.listdir(crawling_folder):
         try:
             path = os.path.join(crawling_folder, i)
