@@ -15,7 +15,9 @@ public class AiService {
         String filePath = "C:\\Users\\admin\\Desktop\\CapstoneDesign\\recognition\\ArcFace\\data\\target\\";
 
         long fileSize = (long)image.getBytes().length;
-        String fileName = sessionId+"_"+image.getOriginalFilename();
+        String originFileName = image.getOriginalFilename().replace(" ", "");
+
+        String fileName = sessionId+"_"+originFileName;
 
         System.out.println("파일 이름 : "+fileName);
         System.out.println("파일 크기 : "+fileSize);

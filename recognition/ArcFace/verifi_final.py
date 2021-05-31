@@ -114,9 +114,8 @@ def calculate_roc(thresholds,
                                           threshold, dist[test_set],
                                           actual_issame[test_set])
         '''
-        #밑에 thresholds값 변경해야함
         _, _, accuracy[fold_idx] = calculate_accuracy(
-            thresholds[100], dist[test_set],
+            thresholds[120], dist[test_set],
             actual_issame[test_set])
 
     tpr = np.mean(tprs, 0)
@@ -137,19 +136,26 @@ def calculate_accuracy(threshold, dist, actual_issame):
     for i in range(0, len(predict_issame)):
         if predict_issame[i] == True:
             # print(namePath[i])
-            print(dist[i])
+            # print(dist[i])
+            pass
     for real_idx, real_val in enumerate(predict_issame):
         if(real_val == True):
             tr_idx.append(real_idx)
 
 
 
-    precision = "87%"
     header = {'cookie': 'JSESSIONID=' + args.sessionid}
+    print("sessionid: ",args.sessionid)
 
     for data in tr_idx:
         hash = namePath[data].split(".")[1].split("/")[-1]
-
+        precision = dist[data]
+        if precision <= 0.9:
+            precision = "높음"
+        elif precision <=1.0:
+            precision ="중간"
+        else:
+            precision = "낮음"
 
         files = {'face': compare[data]}
         try:
@@ -158,7 +164,8 @@ def calculate_accuracy(threshold, dist, actual_issame):
 
             # aws server
             result = req.post('http://ec2-13-209-242-131.ap-northeast-2.compute.amazonaws.com:8080/api/detection/result', files=files, data={'hash': hash, 'precision': precision}, headers=header)
-            print(result)
+            # print(result)
+
         except Exception as E:
             print("Encode 전송 에러")
             print(E)
@@ -272,21 +279,21 @@ def load_bin(image_size):
     
     ### 추가코드 #######################
     print("----------")
-    target_image = './data/target/'+args.filename #웹 클라이언트에서 받을 이미지
+    target_image_path = './data/target/'+args.filename #웹 클라이언트에서 받을 이미지
     crawling_folder = './data/crawling/' # 크롤링 저장소 경로
     
     issame_list  = []
 
     #print("load folder : "+ str(os.listdir(crawling_folder)))
     
-    loading_img = cv2.imread(target_image)
+    # loading_img = cv2.imread(target_image_path)
     
-    temp_face_location = face_recognition.load_image_file(loading_img)
+    temp_face_location = face_recognition.load_image_file(target_image_path)
     temp_encoding = face_recognition.face_encodings(temp_face_location)
     
     cnt = len(temp_encoding)
     if cnt == 0:
-        with open(target_image, 'rb') as fp:
+        with open(target_image_path, 'rb') as fp:
             target_image = fp.read()
     elif cnt == 1:
         for (top, right, bottom, left) in face_recognition.face_locations(temp_face_location):
@@ -294,17 +301,37 @@ def load_bin(image_size):
                 
                 pil_img = Image.fromarray(face_img)
 
-                head, ext = target_image.split(".")[1:]
-                head = "./"+head + "_changed" + "." + ext
+                head, ext = target_image_path.split(".")[1:]
+                head = "./"+head + "." + ext
                 
                 pil_img.save(head)
                 with open(head, 'rb') as fp:
                     target_image = fp.read()
     else:
-        with open(target_image, 'rb') as fp:
+        target =0
+        target_face = [0,0,0,0]
+        for (top, right, bottom, left) in face_recognition.face_locations(temp_face_location):
+            face_img = temp_face_location[top:bottom, left:right]
+            curr =abs(left -right) + abs(top - bottom)
+            if( curr> target):
+                target = curr
+                target_face[0] = top
+                target_face[1] = right
+                target_face[2] = bottom
+                target_face[3] = left
+
+        face_img = temp_face_location[target_face[0]:target_face[2], target_face[3]:target_face[1]]
+        pil_img = Image.fromarray(face_img)
+
+        head, ext = target_image_path.split(".")[1:]
+        head = "./" + head + "." + ext
+        pil_img.save(head)
+        with open(head, 'rb') as fp:
             target_image = fp.read()
-        
-        
+
+    print(" 검출된 얼굴 :: ",cnt)
+    os.remove(target_image_path)
+
     for i in os.listdir(crawling_folder):
         try:
             path = os.path.join(crawling_folder, i)
@@ -705,13 +732,13 @@ if __name__ == '__main__':
     # general
     parser.add_argument('--data-dir', default='data', help='')
     parser.add_argument('--model',
-                        default='./models/model/model,436',
+                        default='./models/model/model,0',
                         help='path to load model.')
     parser.add_argument('--target',
                         default='lfw,cfp_ff,cfp_fp,agedb_30',
                         help='test targets.')
     parser.add_argument('--gpu', default=0, type=int, help='gpu id')
-    parser.add_argument('--batch-size', default=20, type=int, help='')
+    parser.add_argument('--batch-size', default=24, type=int, help='')
     parser.add_argument('--max', default='', type=str, help='')
     parser.add_argument('--mode', default=0, type=int, help='')
     parser.add_argument('--nfolds', default=10, type=int, help='')
@@ -792,3 +819,5 @@ if __name__ == '__main__':
     else:
         model = nets[0]
         dumpR(ver_list[0], model, args.batch_size, args.target)
+
+
