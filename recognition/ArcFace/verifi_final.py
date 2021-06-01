@@ -293,8 +293,9 @@ def load_bin(image_size):
     
     cnt = len(temp_encoding)
     if cnt == 0:
-        with open(target_image_path, 'rb') as fp:
-            target_image = fp.read()
+       print("N/F")
+       os.remove(target_image_path)
+       sys.exit(0)
     elif cnt == 1:
         for (top, right, bottom, left) in face_recognition.face_locations(temp_face_location):
                 face_img = temp_face_location[top:bottom, left:right]  

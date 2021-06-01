@@ -28,7 +28,7 @@ class _Video(utills.utillClass):
     super(_Video, self).__init__()
     print("Start")
     self.BASE_SEARCH_URL = "https://www.youtube.com/results?search_query="
-    self.keyword='강남스타일' #<--------------원하는 키워드입력! 위의 url은 변경하지 말것
+    self.keyword='아이유 블루밍' #<--------------원하는 키워드입력! 위의 url은 변경하지 말것
 
   # get uri lists
   def get_UrlList(self):
@@ -104,7 +104,7 @@ class _Video(utills.utillClass):
     count=1
 
     print(url_list)
-    
+
     pics_lists = []
 
     oriName_lists = []
@@ -112,37 +112,37 @@ class _Video(utills.utillClass):
 
     for url in url_list:
        
-       print("++++++++++++ {} 번째 동영상 저장 시작++++++++++++".format(count))
-       count+=1
-       now = datetime.datetime.now()
-       current_time = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second)
-       current_time_dir = 'frames_' + current_time
-       
-       ori_name, video_list=self.get_Video(url, current_time)
-       oriName_lists.append(ori_name)
-       
-       time.sleep(1)
-       saveInformation = self.get_Frame(video_list, current_time_dir)
-       pics_lists.extend(self.get_faceKeyFrame(saveInformation))
+        print("++++++++++++ {} 번째 동영상 저장 시작++++++++++++".format(count))
+        count+=1
+        now = datetime.datetime.now()
+        current_time = str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second)
+        current_time_dir = 'frames_' + current_time
 
-       try:
+        ori_name, video_list=self.get_Video(url, current_time)
+        oriName_lists.append(ori_name)
+
+        time.sleep(1)
+        saveInformation = self.get_Frame(video_list, current_time_dir)
+        pics_lists.extend(self.get_faceKeyFrame(saveInformation))
+
+        try:
            print("1")
-       
-       #음성파일 Exception로 제거
-       except Exception as E:
+
+        #음성파일 Exception로 제거
+        except Exception as E:
            print(E)
            self.saveFileErrorHandling("remove only record file", video_list)
            continue
-         
-       #self.moveAndDelete(args.saveDir, args.saveVideoDir, current_time_dir, "frames_")
-       
-       shutil.move(video_list.savePath, args.saveVideoDir+current_time_dir+"/"+ori_name)
-       if(count>4):
-           break
-       time.sleep(3)
+
+        #self.moveAndDelete(args.saveDir, args.saveVideoDir, current_time_dir, "frames_")
+
+        shutil.move(video_list.savePath, args.saveVideoDir+current_time_dir+"/"+ori_name)
+        time.sleep(3)
+        break
 
     #connection: keep-alive 
     self.sender(pics_lists)
+
 
     #trim videos
     for i in oriName_lists:

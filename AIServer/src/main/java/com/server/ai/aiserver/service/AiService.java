@@ -34,13 +34,13 @@ public class AiService {
 
     }
 
-    public void run(String sessionId, String fileName){
+    public String run(String sessionId, String fileName){
         System.out.println("얼굴 매칭....");
-
+        String flag="완료";
         //cmd
         try{
             //windows
-            cmd("cd C:\\Users\\admin\\Desktop\\CapstoneDesign\\recognition\\ArcFace && python verifi_final.py --data-dir data --nfolds 1 --sessionid "+sessionId+" --filename "+fileName);
+            flag = cmd("cd C:\\Users\\admin\\Desktop\\CapstoneDesign\\recognition\\ArcFace && python verifi_final.py --data-dir data --nfolds 1 --sessionid "+sessionId+" --filename "+fileName);
             //linux 기반
 //            cmd("python ~/Desktop/Capstone/test/test.py --sessionid "+sessionId);
 
@@ -49,10 +49,10 @@ public class AiService {
         }
 
         System.out.println("결과 전송 완료.");
-
+        return flag;
 
     }
-    public void cmd(String command) throws IOException, InterruptedException {
+    public String cmd(String command) throws IOException, InterruptedException {
         String cmd[] = new String[3];
         //windows
         cmd[0] ="cmd.exe";
@@ -68,7 +68,7 @@ public class AiService {
         process.waitFor();
 
         if (process.exitValue() == 0) {
-            System.out.println("성공");
+            System.out.println("정상 종료");
         } else {
             System.out.println("비정상 종료");
         }
@@ -78,8 +78,12 @@ public class AiService {
                 new InputStreamReader(
                         process.getInputStream()));
         String line;
-        while((line =br.readLine()) !=null)
+        while((line =br.readLine()) !=null){
             System.out.println(line);
+            if(line.equals("N/F"))
+                return "얼굴 미검출";
+        }
+        return "완료";
     }
 
 }

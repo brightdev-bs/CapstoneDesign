@@ -18,6 +18,7 @@ public class reciveController {
     int currMulti =0;
     int waiting =0;
     Object lock =new Object();
+    Object lock2 = new Object();
     ArrayList<String[]> queue =new ArrayList<String[]>();
 
     private final AiService aiService;
@@ -53,20 +54,26 @@ public class reciveController {
             fileName = curr[0];
             sessionId = curr[1];
             System.out.println("매칭 실행 session: "+sessionId);
-            System.out.println("현재 실행중인 프로세스: "+ ++currMulti);
+            System.out.println("현재 실행중인 프로세스 수: "+ ++currMulti);
             System.out.println("대기 중인 처리: "+ queue.size());
 
         }
-        aiService.run(sessionId, fileName);
+        String flag = aiService.run(sessionId, fileName);
 
         long end = System.currentTimeMillis();
 
         System.out.println("소요시간 : "+ (end-start)/1000);
-
         System.out.println("매칭 완료.");
-        currMulti--;
 
-       return "/result";
+        synchronized (lock2){
+            System.out.println("현재 실행중인 프로세스 수: "+ --currMulti);
+        }
+//        currMulti--;
+
+        if(flag.equals("완료"))
+            return "/result";
+        else
+            return "얼굴 미검출";
 
     }
 
