@@ -79,7 +79,7 @@ public class AiService {
                         process.getInputStream()));
         String line;
         while((line =br.readLine()) !=null){
-            System.out.println(line);
+//            System.out.println(line);
             if(line.equals("N/F"))
                 return "얼굴 미검출";
         }

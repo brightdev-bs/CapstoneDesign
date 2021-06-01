@@ -147,9 +147,17 @@ def calculate_accuracy(threshold, dist, actual_issame):
     header = {'cookie': 'JSESSIONID=' + args.sessionid}
     print("sessionid: ",args.sessionid)
 
+    result_dict ={}
     for data in tr_idx:
         hash = namePath[data].split(".")[1].split("/")[-1]
-        precision = dist[data]
+        result_dict[(hash, compare[data])] = dist[data]
+
+
+    result_dict = sorted(result_dict.items(), key=lambda x:x[1])
+
+    for img, dist in result_dict:
+        precision = dist
+        hash = img[0]
         if precision <= 0.9:
             precision = "높음"
         elif precision <=1.0:
@@ -157,7 +165,7 @@ def calculate_accuracy(threshold, dist, actual_issame):
         else:
             precision = "낮음"
 
-        files = {'face': compare[data]}
+        files = {'face': img[1]}
         try:
             # local test
             # result = req.post('http://localhost:8080/api/detection/result', files=files,     data={'hash': hash, 'precision': precision}, headers=header)
@@ -239,7 +247,7 @@ def calculate_val_far(threshold, dist, actual_issame):
     val = float(true_accept) / float(n_same)
     far = float(false_accept) / float(n_diff)
     print("far %s" % (far))
-    return var, far   # var -> 0으로 수정함
+    return val, far   # var -> 0으로 수정함
 
 
 def evaluate(embeddings, actual_issame, nrof_folds=10, pca=0):
@@ -330,7 +338,6 @@ def load_bin(image_size):
         with open(head, 'rb') as fp:
             target_image = fp.read()
 
-    print(" 검출된 얼굴 :: ",cnt)
     os.remove(target_image_path)
 
     for i in os.listdir(crawling_folder):

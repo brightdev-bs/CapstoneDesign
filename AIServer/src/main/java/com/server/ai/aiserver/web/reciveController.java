@@ -33,7 +33,7 @@ public class reciveController {
 
         long start = System.currentTimeMillis();
 
-        System.out.println(sessionId);
+
         String originFileName = image.getOriginalFilename().replace(" ", "");
 
         String fileName = sessionId+"_"+originFileName;
@@ -63,12 +63,10 @@ public class reciveController {
         long end = System.currentTimeMillis();
 
         System.out.println("소요시간 : "+ (end-start)/1000);
-        System.out.println("매칭 완료.");
 
         synchronized (lock2){
-            System.out.println("현재 실행중인 프로세스 수: "+ --currMulti);
+           --currMulti;
         }
-//        currMulti--;
 
         if(flag.equals("완료"))
             return "/result";

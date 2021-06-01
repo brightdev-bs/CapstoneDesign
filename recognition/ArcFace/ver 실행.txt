@@ -1,1 +1,1 @@
-python verifi_final.py --data-dir data --nfolds 1 --sessionid asd --filename 014345FAAC0E9D71679067D4C99AACD6_HW8_반사체_스케치.jpeg
+python verifi_final.py --data-dir data --nfolds 1 --sessionid asd --filename 아이유.jpg
