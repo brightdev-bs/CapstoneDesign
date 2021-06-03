@@ -3,11 +3,8 @@ package com.server.ai.aiserver.web;
 import com.server.ai.aiserver.service.AiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -17,8 +14,9 @@ public class reciveController {
     final int MAXIMUMMULTI = 1;
     int currMulti =0;
     int waiting =0;
-    Object lock =new Object();
-    Object lock2 = new Object();
+    Object addLock = new Object();
+    Object waitLock =new Object();
+    Object doneLock = new Object();
     ArrayList<String[]> queue =new ArrayList<String[]>();
 
     private final AiService aiService;
@@ -38,8 +36,10 @@ public class reciveController {
 
         String fileName = sessionId+"_"+originFileName;
         aiService.localSave(image, sessionId);
-        queue.add(new String[]{fileName,sessionId});
-        waiting =queue.size();
+        synchronized (addLock){
+            queue.add(new String[]{fileName,sessionId});
+            waiting =queue.size();
+        }
 
 
         if(currMulti >= MAXIMUMMULTI){
@@ -47,7 +47,7 @@ public class reciveController {
             System.out.println("현재 대기열: "+currMulti);
         }
 
-        synchronized (lock){
+        synchronized (waitLock){
             while(currMulti >= MAXIMUMMULTI){}
             String[] curr = queue.remove(0);
 
@@ -64,7 +64,7 @@ public class reciveController {
 
         System.out.println("소요시간 : "+ (end-start)/1000);
 
-        synchronized (lock2){
+        synchronized (doneLock){
            --currMulti;
         }
 
