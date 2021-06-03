@@ -1,1 +1,0 @@
-python verifi_final.py --data-dir data --nfolds 1 --sessionid asd --filename 아이유.jpg
