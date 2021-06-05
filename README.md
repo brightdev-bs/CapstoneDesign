@@ -72,4 +72,21 @@ R005	웹 클라이언트	키워드와 사진으로 검색 등 종합적으로 �
 ![image](https://user-images.githubusercontent.com/61380786/116859237-a0282c00-ac3a-11eb-9ac7-98fa21a68cfd.png)
 
 
+ ### 기술
+ ![image](https://user-images.githubusercontent.com/61380786/120881210-8a779f00-c60a-11eb-8e1f-16fccb962851.png)        
+ ![image](https://user-images.githubusercontent.com/61380786/120881215-906d8000-c60a-11eb-9f56-f9526ce801f6.png)
  
+ 
+
+ 
+ 
+ ### 구현 결과
+ ![image](https://user-images.githubusercontent.com/61380786/120881235-ada24e80-c60a-11eb-85b5-22820c30c65a.png)
+ ![image](https://user-images.githubusercontent.com/61380786/120881251-beeb5b00-c60a-11eb-9051-d11add5959f6.png)
+
+ ![image](https://user-images.githubusercontent.com/61380786/120881244-ba26a700-c60a-11eb-80c3-50995faa143f.png)
+
+
+
+
+
